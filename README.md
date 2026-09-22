@@ -52,12 +52,40 @@ This replaces the earlier "no rubric, VC-heavy panel, inferred priorities" guess
 3. Monad Integration — 20%
 4. Innovation — 10%
 
+### Sponsor bounties — verified verbatim from the dashboard's "Tracks & Bounties" page (2026-09-22)
+
+This **replaces** an earlier version of this table that only guessed sponsor names from the public
+marketing page. None of these are selected/committed yet — track 02 is locked in, bounties are not.
+
+**Fit our track (Consumer Products & Payments) or All Tracks, realistic for Merchant Rails:**
+
+| Bounty | Sponsor | Requirement (verbatim) | Prize |
+|---|---|---|---|
+| Best Cross-Border Payments App on Monad (Agora Payments Bounty) | Agora | "Build a **mobile app** letting users send AUSD across borders using **Mera passkey onboarding** and instant settlement." | $10,000 |
+| Best Use of Envio | Envio | "Meaningfully use Envio's HyperIndex, HyperSync, or HyperRPC to power real on-chain data driving a core feature in your app." | $1,000 |
+| Best Mera-Powered UX on Monad | Monad Foundation | "Build an app on Monad where Mera is the entire account layer — no seed phrase, no extension, no custody backend." | $2,500 |
+| Bring Any-Chain Liquidity to Monad | Aurora Intents | "Integrate Aurora Intents (powered by NEAR Intents) ... for any-chain deposits, swaps, or deposit-and-execute flows." | $5,000 |
+| Best Projects using Alchemy | Alchemy | "Build a functional project deployed on Monad that meaningfully integrates at least one Alchemy service or tool." | $1,000 credits |
+| Best workflow with CRE | Chainlink | Use a CRE Workflow "as an orchestration layer within your project." | $3,000 |
+| Best Use of Dynamic | Dynamic | Auth/wallet SDK — **mutually exclusive with the Mera bounties above**, pick one account layer. | $5,000 |
+| Privy! | Privy | "Integrate Privy beyond authentication — login-only integrations will not qualify." — also mutually exclusive with Mera. | $5,000 |
+
+**Out of scope for this project** (wrong track or wrong product shape): Best Mobile Trading App (Agora,
+Onchain Finance & Trading), Cleanverse (Trust/Identity), Kuru ×2 (Onchain Finance & Trading), Best Analytics
+/ Risk Tool (Perpl, Onchain Finance & Trading), Perpl API (trading bot), Nansen, Hunyuan/KIMI/Qwen (AI-model
+credits, different tracks), Best Agent Wallet Plugin (MetaMask, Onchain Finance & Trading), Best Community
+Team Project (requires being "a team from Metropolis community supporters" — not us).
+
+**Open decision, needs the user's call:** the Agora Cross-Border bounty ($10k, the single largest fit) requires
+Mera specifically and says "mobile app" — our plan is a responsive web checkout, not a native app; unclear if
+that qualifies. It also requires AUSD, not our MockUSD. Taking it means adopting Mera as the account layer
+(a preview-stage library — see the Agentic Coding Feasibility section) and sourcing real AUSD on testnet.
+**Not committed to any bounty yet — track selection only.**
+
 ### Still to verify
 
-- Sponsor bounty list and their individual terms — only visible in the logged-in dashboard ("Tracks &
-  Bounties"); not part of these binding Rules and may still change.
 - Whether the registration "Agreement" checkbox (accepting this Rules doc + Monad Foundation TOS + Privacy
-  Policy) has been ticked — **that's the user's decision, not filled in by the assistant.**
+  Policy) has been ticked — **that's the user's decision, not filled in by the assistant.** (Done — see schedule.)
 
 ## What exists
 
@@ -102,8 +130,14 @@ specific — a vague "AI was used" disclosure is weaker than naming which parts.
       (= Oct 13, 11:59 PM ET — same deadline, different timezone display, no conflict).
 - [x] **Sep 22** — solo team created on the dashboard ("Precious Akpan · you", 1 member). Next dashboard
       step: Create project (name/description/track), then select tracks & bounties, then submit.
-- [ ] **Sep 22–23** — create the project on the dashboard; fund a testnet wallet, deploy, verify on the
-      explorer; read dashboard bounty terms; confirm Track 02 at submission
+- [x] **Sep 22** — project created on the dashboard: name "Merchant Rails", one-line description, full
+      description, repository link, primary track **Consumer Products & Payments** selected. Also pulled
+      the real, verified sponsor-bounty list (see "Sponsor bounties" above) — replacing the earlier guess
+      from the marketing page. No bounties selected yet; that's an open decision (see above).
+      Note: the platform's "one-line description" field has an undocumented length limit — a full-sentence
+      pitch got a silent `400` on save; a short tagline worked. Keep that field short if editing again.
+- [ ] **Sep 22–23** — decide on the Agora Cross-Border bounty (Mera + AUSD + "mobile app" question); fund a
+      testnet wallet, deploy, verify on the explorer
 - [ ] **Sep 24–30** — Next.js (TS) checkout + merchant dashboard updating live from a real testnet tx; Envio indexer
 - [ ] **Oct 1–5** — "vs card" comparison UI driven by the real transaction; run Slither/own scan on the contract
 - [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
