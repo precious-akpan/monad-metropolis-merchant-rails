@@ -96,8 +96,14 @@ specific — a vague "AI was used" disclosure is weaker than naming which parts.
 - [x] **Sep 22** — pushed to a public GitHub remote: https://github.com/precious-akpan/monad-metropolis-merchant-rails
       (first commit `45d81be`). Commit early and often from here forward — a single squashed commit near
       the deadline is the wrong shape for the Rules' "commit history covers the build window" requirement.
-- [ ] **Sep 22–23** — finish onboarding/registration; fund a testnet wallet, deploy, verify on the explorer;
-      read dashboard bounty terms; confirm Track 02 at submission
+- [x] **Sep 22** — registration submitted (profile: Software Engineer, Nigeria/Ikorodu, GitHub
+      `precious-akpan` as the social link, solo — "Looking for a team" left off). Dashboard confirms:
+      registration open through 6 Oct; **submission form itself opens Oct 2**, closes **14 Oct, 04:59 GMT+1**
+      (= Oct 13, 11:59 PM ET — same deadline, different timezone display, no conflict).
+- [x] **Sep 22** — solo team created on the dashboard ("Precious Akpan · you", 1 member). Next dashboard
+      step: Create project (name/description/track), then select tracks & bounties, then submit.
+- [ ] **Sep 22–23** — create the project on the dashboard; fund a testnet wallet, deploy, verify on the
+      explorer; read dashboard bounty terms; confirm Track 02 at submission
 - [ ] **Sep 24–30** — Next.js (TS) checkout + merchant dashboard updating live from a real testnet tx; Envio indexer
 - [ ] **Oct 1–5** — "vs card" comparison UI driven by the real transaction; run Slither/own scan on the contract
 - [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
