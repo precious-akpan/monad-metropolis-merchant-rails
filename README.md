@@ -141,6 +141,24 @@ forge build && forge test
 forge script script/Deploy.s.sol --rpc-url monad_testnet --account monad-deployer --broadcast
 ```
 
+### Deployed (Monad testnet, chain 10143) — verified on-chain 2026-09-22, not just from script logs
+
+| Contract | Address |
+|---|---|
+| **MerchantRails** | `0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6` |
+| **MockUSD** (testnet only) | `0x8954CadCE9B84DF214A77C3dCa5977573fb7E340` |
+
+Deployer / fee recipient: `0x013032166b72D40C43Ccc6B8cf776E4763f58162`. `feeBps` = 30 (0.30%), confirmed by
+calling `feeRecipient()`/`feeBps()` directly against the deployed bytecode, and the deploy tx's on-chain
+`from` field, not just trusted from script output.
+
+**Note:** two earlier deploys at different addresses were abandoned after an ambient `FEE_RECIPIENT`
+environment variable (unexplained source — not in this repo, dotfiles, `.env`, or direnv; never resolved)
+leaked into the script and pointed the immutable `feeRecipient` at an unrelated wallet. Fixed by passing
+`FEE_RECIPIENT=<deployer address>` explicitly on the deploy command, which overrides any ambient value
+deterministically. The abandoned contracts are harmless (non-custodial design, no invoices or funds ever
+touched them) but should not be referenced anywhere — only the addresses above are current.
+
 ## AI tool disclosure (Rules §4.1.4 requires this before submission)
 
 Contracts, tests, deploy script, and this README were drafted with an AI coding agent (Claude Code) under
@@ -173,8 +191,13 @@ disclosure is weaker than naming which parts.
       from the marketing page. No bounties selected yet; that's an open decision (see above).
       Note: the platform's "one-line description" field has an undocumented length limit — a full-sentence
       pitch got a silent `400` on save; a short tagline worked. Keep that field short if editing again.
-- [ ] **Sep 22–23** — decide on the Agora Cross-Border bounty (Mera + AUSD + "mobile app" question); fund a
-      testnet wallet, deploy, verify on the explorer
+- [x] **Sep 22** — hardened the contract before deploying: ran Slither (clean), added reentrant-token
+      tests and a 25,600-call invariant campaign (see "Static analysis" / "Honest scope note" above).
+- [x] **Sep 22** — deployed to Monad testnet: `MerchantRails` at `0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6`,
+      `MockUSD` at `0x8954CadCE9B84DF214A77C3dCa5977573fb7E340`. Verified on-chain (bytecode, `feeRecipient`,
+      `feeBps`, tx sender), not just trusted from script output — good thing, since two earlier deploy
+      attempts had to be abandoned over a `feeRecipient` mix-up (see "Deployed" section above).
+- [ ] **Sep 22–23** — decide on the Agora Cross-Border bounty (Mera + AUSD + "mobile app" question)
 - [ ] **Sep 24–30** — Next.js (TS) checkout + merchant dashboard updating live from a real testnet tx; Envio indexer
 - [ ] **Oct 1–5** — "vs card" comparison UI driven by the real transaction; run Slither/own scan on the contract
 - [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
