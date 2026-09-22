@@ -4,6 +4,8 @@ Non-custodial merchant checkout on Monad: a merchant creates an invoice, a custo
 transaction, the stablecoin lands with the merchant in under a second, and the contract never holds funds.
 
 - **Hackathon:** [Metropolis](https://www.monad.xyz/developers/hackathons/metropolis) · platform: https://hackathon.monad.xyz/
+- **Repo:** https://github.com/precious-akpan/monad-metropolis-merchant-rails (public, MIT) — this is the
+  GitHub link to give the hackathon platform at submission.
 - **Track:** 02 — Consumer Products & Payments. Official definition (Rules §3.3): *"products whose primary
   user is a consumer who may not identify as a crypto user, and whose core value is a financial experience
   rather than a trading or market making product."* Merchant Rails is a direct fit.
@@ -91,10 +93,9 @@ specific — a vague "AI was used" disclosure is weaker than naming which parts.
 - [x] **Sep 22 (AM)** — read the binding Rules modal; corrected prize pool, judging rubric, team size,
       open-source requirement, video length, AI disclosure; added LICENSE; regenerated the Drive doc and
       marked the two earlier ones `[SUPERSEDED]`
-- [ ] **Sep 22 (today)** — **push this repo to a public GitHub remote now**, not at submission time. The
-      Rules require the code "publicly accessible on GitHub throughout and after the Hackathon" and a
-      commit history that "covers the build window" — a single squashed commit near the deadline is the
-      wrong shape for that. Commit early and often from here forward. First commit is overdue.
+- [x] **Sep 22** — pushed to a public GitHub remote: https://github.com/precious-akpan/monad-metropolis-merchant-rails
+      (first commit `45d81be`). Commit early and often from here forward — a single squashed commit near
+      the deadline is the wrong shape for the Rules' "commit history covers the build window" requirement.
 - [ ] **Sep 22–23** — finish onboarding/registration; fund a testnet wallet, deploy, verify on the explorer;
       read dashboard bounty terms; confirm Track 02 at submission
 - [ ] **Sep 24–30** — Next.js (TS) checkout + merchant dashboard updating live from a real testnet tx; Envio indexer
