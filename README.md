@@ -114,8 +114,25 @@ bounty yet — track selection only.**
 - `src/MockUSD.sol` — 6-decimal open-mint demo token. **Testnet only.**
 - `test/MerchantRails.t.sol` — 20 tests incl. double-pay, zero amount, expiry boundary, cancel auth, failed pay
   leaves invoice open, and a 1,000-run fuzz proving value conservation and that the contract holds nothing.
+- `test/MerchantRailsReentrancy.t.sol` + `test/mocks/ReentrantERC20.sol` — 3 tests using an actively hostile
+  token that tries to re-enter `pay()` (same invoice, a different invoice) and `cancelInvoice()` mid-payment.
+  Proves both defense layers actually work: the `nonReentrant` guard, and checks-effects-interactions
+  (status flips before any external call) independently of the guard.
+- `test/invariant/` (`Handler.sol` + `MerchantRailsInvariant.t.sol`) — Foundry stateful fuzzing: random
+  sequences of createInvoice/pay/cancelInvoice across multiple payers (128 runs × 200 calls = 25,600 calls),
+  checking after every sequence: the contract never custodies funds, no invoice is ever double-settled
+  (paid twice, cancelled twice, or both paid and cancelled), and value is conserved across the whole run.
 - `script/Deploy.s.sol` — testnet deploy via Foundry keystore.
 - `LICENSE` — MIT (required by Rules §7.2; matches forge-std and OpenZeppelin's own licenses).
+
+**Static analysis:** Slither (100 detectors) run 2026-09-22 — 2 low-severity, expected findings ("uses
+timestamp for comparisons" on the two `expiresAt` checks; irrelevant at hour/day granularity), nothing else.
+
+**Honest scope note:** this is testnet-hackathon-grade rigor (unit + adversarial + fuzz + invariant tests,
+clean static analysis), not a professionally audited contract. The design keeps the blast radius of any
+undiscovered bug small — the contract never holds funds, so there's no pooled balance to drain — but the
+contract is intentionally not upgradeable: there's no fix path beyond deploying a new address. Treat that
+as the real cost of "no admin keys, no proxy," not a gap to paper over.
 
 ```sh
 cd contracts
@@ -128,9 +145,12 @@ forge script script/Deploy.s.sol --rpc-url monad_testnet --account monad-deploye
 
 Contracts, tests, deploy script, and this README were drafted with an AI coding agent (Claude Code) under
 close human review — payment/fee logic and every adversarial test case were specified and checked line by
-line by the human author, per the project's own "needs a human driving" list below. Frontend scaffolding,
-SDK wiring, and boilerplate are expected to lean on the agent more heavily. Keep this section current and
-specific — a vague "AI was used" disclosure is weaker than naming which parts.
+line by the human author, per the project's own "needs a human driving" list below. The reentrancy mock
+(`ReentrantERC20.sol`), its 3 tests, and the invariant handler/campaign were agent-drafted and then run and
+inspected by the human author (test output reviewed line by line: 26/26 passing, 25,600 fuzzed calls, 0
+invariant violations) before being trusted. Frontend scaffolding, SDK wiring, and boilerplate are expected
+to lean on the agent more heavily. Keep this section current and specific — a vague "AI was used"
+disclosure is weaker than naming which parts.
 
 ## Schedule (re-based 2026-09-22; 21 days to the Oct 13, 11:59 PM ET deadline — not the UTC countdown, when in doubt)
 
