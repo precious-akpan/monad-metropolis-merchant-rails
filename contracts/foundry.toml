@@ -1,0 +1,20 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
+# Monad's Foundry guide gives no evm_version; cancun is a safe, supported target.
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+
+[fuzz]
+runs = 1000
+
+[lint]
+# Tests deliberately use bytes32("literal") and similar; keep lint signal for src/ only.
+ignore = ["test/**"]
+
+[rpc_endpoints]
+# https://docs.monad.xyz/guides/deploy-smart-contract/foundry
+monad_testnet = "https://testnet-rpc.monad.xyz"
