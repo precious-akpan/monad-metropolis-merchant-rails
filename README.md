@@ -76,11 +76,28 @@ Onchain Finance & Trading), Cleanverse (Trust/Identity), Kuru ×2 (Onchain Finan
 credits, different tracks), Best Agent Wallet Plugin (MetaMask, Onchain Finance & Trading), Best Community
 Team Project (requires being "a team from Metropolis community supporters" — not us).
 
-**Open decision, needs the user's call:** the Agora Cross-Border bounty ($10k, the single largest fit) requires
-Mera specifically and says "mobile app" — our plan is a responsive web checkout, not a native app; unclear if
-that qualifies. It also requires AUSD, not our MockUSD. Taking it means adopting Mera as the account layer
-(a preview-stage library — see the Agentic Coding Feasibility section) and sourcing real AUSD on testnet.
-**Not committed to any bounty yet — track selection only.**
+### Decided 2026-09-22: Agora Cross-Border bounty — "ask organizers first, build the safe plan meanwhile"
+
+The Agora bounty ($10k, the single largest fit) requires Mera specifically, says "mobile app" (our plan is a
+responsive web checkout, not a native app), and requires AUSD (not our MockUSD). Research done:
+- **Mera:** checked its own docs at mera.category.xyz directly — still no concrete function names, no working
+  code snippet, no stated version. Same thin-docs picture as its GitHub README. High risk for AI-agent-assisted
+  coding specifically (an agent is likely to invent an API that doesn't exist).
+- **AUSD:** *is* deployed on Monad testnet, contract `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` (confirmed
+  via [Agora's contract-deployments docs](https://docs.agora.finance/developer/contract-deployments)). No
+  confirmed public faucet address found for it specifically, unlike the standard MON faucet.
+- **"Mobile app":** no doc clarifies whether a responsive/PWA web app counts. Only the organizers can answer.
+
+**Decision:** default plan stays the safe one — a standard wallet connector, MockUSD, no Mera — so nothing
+blocks on this. In parallel, ask in the [Monad Discord](https://discord.gg/monaddev) (or the Metropolis
+Discord from the platform) two questions:
+1. Does a responsive/PWA web checkout qualify as "mobile app" for the Agora Cross-Border Payments bounty?
+2. Where's the Monad testnet AUSD faucet?
+
+**Cutoff: before frontend wallet-integration work starts (target Sep 24).** If both answers are favorable
+with time to spare, revisit switching to Mera + AUSD then. If no answer by the cutoff, or either answer is
+unfavorable, stay on the safe plan — don't let this bounty consume schedule risk. **Not committed to any
+bounty yet — track selection only.**
 
 ### Still to verify
 
