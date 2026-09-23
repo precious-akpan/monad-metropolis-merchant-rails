@@ -192,14 +192,24 @@ on-chain data, hardcoded in `frontend/src/lib/{chain,contracts}.ts`.
 - Block explorer: **MonadVision**, `https://testnet.monadvision.com` — `testnet.monadexplorer.com`
   308-redirects here; verified against Monad's own Foundry docs, which name "MonadVision" but give no URL.
 
-**Verified so far:** `pnpm build` passes clean (Next.js 16 fails the build on TS errors — this is the real
-gate). Read-only paths checked live against the deployed contract via the browser: home and merchant pages
-render correctly, and the not-found state on `/pay/[id]` correctly reflects a real on-chain read (tested
-against an invoice id that doesn't exist). **Not yet verified:** the actual connect → create → pay round
-trip — that needs a real wallet extension signing real transactions, which isn't something done from here
-(consistent with the keystore and every deploy step so far this session). That smoke test — create an
-invoice as one account, pay it as another, confirm the dashboard updates and the explorer link resolves —
-is still open.
+**Fully verified end to end, 2026-09-23**, with a real wallet (Rabby) against live Monad testnet — every
+step confirmed independently on-chain via `cast`, not just trusted from the UI:
+- Connect → NetworkGuard correctly detected the wallet on the wrong chain (mainnet) and switched cleanly.
+- Create invoice → the on-chain invoice matched the form input exactly (merchant, token, $5.00 amount).
+- Add test funds → `MockUSD.mint` landed, balance updated.
+- Pay → `approve` then `pay`; final on-chain state: invoice status **Paid**, merchant balance **4.985
+  mUSD** — exactly `$5.00 − 0.30% fee`, matching the contract's fee math precisely.
+
+**One real snag hit and resolved, worth remembering for demo day:** the first several `pay()` attempts got
+stuck showing "Paying…" indefinitely. Diagnosed thoroughly (ruled out: app code — a raw
+`window.ethereum.request` bypass hit the identical failure; network mismatch — cross-checked
+`testnet-rpc.monad.xyz` against Monad's `rpc-testnet.monadinfra.com`, same chain ID, blocks within 3 of
+each other, our contract's bytecode identical on both, neither had any record of the stuck transaction;
+contract logic — a `cast call` dry-run of the exact same `pay()` call succeeded with no revert). The actual
+cause: Rabby's own "pending" status was misleading — its signed transaction never actually reached any
+real mempool (matching a `"message channel closed before a response was received"` console warning), an
+extension-side glitch, not a bug here. **Fixed by clearing Rabby's signature/activity record** and
+retrying with a fresh page load. If this recurs during the actual demo recording, that's the fix.
 
 ## AI tool disclosure (Rules §4.1.4 requires this before submission)
 
@@ -212,7 +222,8 @@ invariant violations) before being trusted. The frontend (`frontend/`) was agent
 provider setup, pages, components, the on-chain read/write hooks — leaning on the agent heavily as
 expected for this kind of work; the human author's review here was at the build/type-check and read-only
 runtime-verification level, not line-by-line, since none of it touches funds custody the way the contract
-does. The actual signed-transaction flow (create → pay) has not yet been human-verified end to end.
+does. The full signed-transaction flow (create → pay, real wallet) was human-verified end to end on
+2026-09-23, including diagnosing and working around a wallet-extension issue unrelated to the app code.
 
 ## Schedule (re-based 2026-09-22; 21 days to the Oct 13, 11:59 PM ET deadline — not the UTC countdown, when in doubt)
 
@@ -248,8 +259,10 @@ does. The actual signed-transaction flow (create → pay) has not yet been human
       merchant dashboard, checkout/pay page, live on-chain status polling, "vs card" comparison driven by
       the real transaction's timing. `pnpm build` passes clean. Envio indexer intentionally skipped for v1
       (README's own "cheapest thing to drop" call) — invoice status is read directly from the contract.
-- [ ] **Sep 24–30 (remaining)** — full wallet-connected smoke test (user, needs a real wallet — see
-      "Frontend" section); Envio indexer if time allows.
+- [x] **Sep 23** — full wallet-connected smoke test passed, real wallet (Rabby) against live Monad testnet:
+      connect → create invoice → add test funds → approve → pay, every step verified independently
+      on-chain (see "Frontend" section above for the fee-math check and the Rabby glitch hit along the way).
+- [ ] **Sep 24–30 (remaining)** — Envio indexer if time allows; otherwise move to polish.
 - [ ] **Oct 1–5** — polish pass on the frontend (loading/error states, mobile pass, seed-merchant framing)
 - [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
       integration, finalize the AI-disclosure section with specifics
