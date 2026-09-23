@@ -89,10 +89,14 @@ responsive web checkout, not a native app), and requires AUSD (not our MockUSD).
 - **"Mobile app":** no doc clarifies whether a responsive/PWA web app counts. Only the organizers can answer.
 
 **Decision:** default plan stays the safe one — a standard wallet connector, MockUSD, no Mera — so nothing
-blocks on this. In parallel, ask in the [Monad Discord](https://discord.gg/monaddev) (or the Metropolis
-Discord from the platform) two questions:
-1. Does a responsive/PWA web checkout qualify as "mobile app" for the Agora Cross-Border Payments bounty?
-2. Where's the Monad testnet AUSD faucet?
+blocks on this. Two questions were posted **2026-09-23** to the platform's own Support Forum
+(`hackathon.monad.xyz/support?tab=forum` — a better fit than Discord: structured, categorized, routes
+directly to organizers, not just the general dev server):
+1. "Does a responsive/PWA web checkout qualify as 'mobile app' for the Agora Cross-Border Payments bounty?"
+   — category: Rules and eligibility.
+2. "Where's the Monad testnet AUSD faucet?" — category: Other.
+
+Both status "Awaiting organizer" as of posting. Check back on these threads directly rather than Discord.
 
 **Cutoff: before frontend wallet-integration work starts (target Sep 24).** If both answers are favorable
 with time to spare, revisit switching to Mera + AUSD then. If no answer by the cutoff, or either answer is
