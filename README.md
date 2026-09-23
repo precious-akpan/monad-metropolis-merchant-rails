@@ -163,6 +163,44 @@ leaked into the script and pointed the immutable `feeRecipient` at an unrelated 
 deterministically. The abandoned contracts are harmless (non-custodial design, no invoices or funds ever
 touched them) but should not be referenced anywhere — only the addresses above are current.
 
+## Frontend (Next.js 16 + TypeScript, `frontend/`)
+
+`pnpm create next-app` (TypeScript, Tailwind, App Router, `src/`) + `wagmi` + `viem` +
+`@tanstack/react-query`. **Wallet connector: `wagmi`'s built-in `injected()` only** — deliberately no
+WalletConnect (would need an external cloud.reown.com account signup) and no Mera, matching the safe-plan
+default from the Agora/Mera decision above. No `.env` needed — RPC URL and contract addresses are public
+on-chain data, hardcoded in `frontend/src/lib/{chain,contracts}.ts`.
+
+- `src/app/merchant/page.tsx` — connect, create a payment request (amount + optional reference), get a
+  shareable `/pay/<id>` link, see your requests' status update live (polled directly from the contract
+  every 3s — no indexer; the invoice *id list* is per-browser `localStorage`,
+  `src/lib/invoiceStorage.ts` — an explicit v1 limitation, not cross-device. Envio would replace this if
+  there's time; it's the first thing to cut either way per the "Open decisions" section above).
+- `src/app/pay/[id]/PayClient.tsx` — the checkout: reads the invoice on-chain, shows a not-found/
+  already-settled state plainly, an "Add test funds" button (calls `MockUSD.mint` directly — intentionally
+  open for demos), then one "Pay" button that sequences `approve` → `pay` under the hood with clear step
+  labels. On success: elapsed time from real `Date.now()` timestamps around the transaction, framed against
+  a card-payment baseline ("Settled in 0.8s. A card payment takes 2–3 business days and ~3% in fees.") —
+  the "vs card" differentiator, driven by the real transaction, not a canned number. A clearly-labeled
+  **"See it settle on-chain →"** link to the transaction on MonadVision. This is deliberate: per
+  memory-only competitive intel (not detailed here — see the assistant's own notes), the closest Track 02
+  competitor hid/removed their explorer link entirely behind a database-only "payment." Ours stays visible
+  as a feature, satisfying Track Fit (no wallet/gas/seed-phrase language in the primary flow) *and* Monad
+  Integration (proof, not just a claim) at the same time.
+- `src/components/NetworkGuard.tsx` — blocks page content with a one-click "Switch to Monad Testnet" if the
+  connected wallet is on the wrong chain, the most common way a live demo fails silently.
+- Block explorer: **MonadVision**, `https://testnet.monadvision.com` — `testnet.monadexplorer.com`
+  308-redirects here; verified against Monad's own Foundry docs, which name "MonadVision" but give no URL.
+
+**Verified so far:** `pnpm build` passes clean (Next.js 16 fails the build on TS errors — this is the real
+gate). Read-only paths checked live against the deployed contract via the browser: home and merchant pages
+render correctly, and the not-found state on `/pay/[id]` correctly reflects a real on-chain read (tested
+against an invoice id that doesn't exist). **Not yet verified:** the actual connect → create → pay round
+trip — that needs a real wallet extension signing real transactions, which isn't something done from here
+(consistent with the keystore and every deploy step so far this session). That smoke test — create an
+invoice as one account, pay it as another, confirm the dashboard updates and the explorer link resolves —
+is still open.
+
 ## AI tool disclosure (Rules §4.1.4 requires this before submission)
 
 Contracts, tests, deploy script, and this README were drafted with an AI coding agent (Claude Code) under
@@ -170,9 +208,11 @@ close human review — payment/fee logic and every adversarial test case were sp
 line by the human author, per the project's own "needs a human driving" list below. The reentrancy mock
 (`ReentrantERC20.sol`), its 3 tests, and the invariant handler/campaign were agent-drafted and then run and
 inspected by the human author (test output reviewed line by line: 26/26 passing, 25,600 fuzzed calls, 0
-invariant violations) before being trusted. Frontend scaffolding, SDK wiring, and boilerplate are expected
-to lean on the agent more heavily. Keep this section current and specific — a vague "AI was used"
-disclosure is weaker than naming which parts.
+invariant violations) before being trusted. The frontend (`frontend/`) was agent-scaffolded end to end —
+provider setup, pages, components, the on-chain read/write hooks — leaning on the agent heavily as
+expected for this kind of work; the human author's review here was at the build/type-check and read-only
+runtime-verification level, not line-by-line, since none of it touches funds custody the way the contract
+does. The actual signed-transaction flow (create → pay) has not yet been human-verified end to end.
 
 ## Schedule (re-based 2026-09-22; 21 days to the Oct 13, 11:59 PM ET deadline — not the UTC countdown, when in doubt)
 
@@ -201,9 +241,16 @@ disclosure is weaker than naming which parts.
       `MockUSD` at `0x8954CadCE9B84DF214A77C3dCa5977573fb7E340`. Verified on-chain (bytecode, `feeRecipient`,
       `feeBps`, tx sender), not just trusted from script output — good thing, since two earlier deploy
       attempts had to be abandoned over a `feeRecipient` mix-up (see "Deployed" section above).
-- [ ] **Sep 22–23** — decide on the Agora Cross-Border bounty (Mera + AUSD + "mobile app" question)
-- [ ] **Sep 24–30** — Next.js (TS) checkout + merchant dashboard updating live from a real testnet tx; Envio indexer
-- [ ] **Oct 1–5** — "vs card" comparison UI driven by the real transaction; run Slither/own scan on the contract
+- [x] **Sep 22–23** — Agora Cross-Border bounty decided (safe plan; both questions posted to the platform
+      Support Forum, awaiting organizer). Contract hardened (Slither, reentrant-token tests, invariant
+      fuzzing) and deployed + verified on-chain — see sections above.
+- [x] **Sep 23** — Next.js (TS) frontend v1 built, a day ahead of schedule (see "Frontend" section below):
+      merchant dashboard, checkout/pay page, live on-chain status polling, "vs card" comparison driven by
+      the real transaction's timing. `pnpm build` passes clean. Envio indexer intentionally skipped for v1
+      (README's own "cheapest thing to drop" call) — invoice status is read directly from the contract.
+- [ ] **Sep 24–30 (remaining)** — full wallet-connected smoke test (user, needs a real wallet — see
+      "Frontend" section); Envio indexer if time allows.
+- [ ] **Oct 1–5** — polish pass on the frontend (loading/error states, mobile pass, seed-merchant framing)
 - [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
       integration, finalize the AI-disclosure section with specifics
 - [ ] **Oct 10–11** — record video (**must be ≤ 3:00, hard cap**), submit, confirm the submission shows
