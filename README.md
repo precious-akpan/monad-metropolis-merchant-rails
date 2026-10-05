@@ -262,13 +262,133 @@ does. The full signed-transaction flow (create → pay, real wallet) was human-v
 - [x] **Sep 23** — full wallet-connected smoke test passed, real wallet (Rabby) against live Monad testnet:
       connect → create invoice → add test funds → approve → pay, every step verified independently
       on-chain (see "Frontend" section above for the fee-math check and the Rabby glitch hit along the way).
-- [ ] **Sep 24–30 (remaining)** — Envio indexer if time allows; otherwise move to polish.
-- [ ] **Oct 1–5** — polish pass on the frontend (loading/error states, mobile pass, seed-merchant framing)
-- [ ] **Oct 6–9** — realistic seed merchant, cold-start test with a non-teammate, write-up naming each
-      integration, finalize the AI-disclosure section with specifics
-- [ ] **Oct 10–11** — record video (**must be ≤ 3:00, hard cap**), submit, confirm the submission shows
-      complete (not draft)
-- Oct 12–13 — emergency buffer only. Never plan to use the last day.
+- ~~**Sep 24–30** — Envio indexer if time allows; otherwise move to polish.~~ **Lapsed — no work done
+  Sep 24 – Oct 1** (last commit is `748e7b8`, Sep 23). Recorded honestly rather than quietly re-dated: the
+  commit history will show the gap either way, and the re-base below is built around the runway that's
+  actually left, not the one originally planned.
+
+### Re-based 2026-10-02 — 11 days left (Oct 2 → Oct 13, 11:59 PM ET)
+
+The original plan had ~20 days of slack; it now has none. The two schedule-level consequences: **Envio is
+cut by default** (it was already flagged as the cheapest thing to drop) and **the submission gets filled in
+early** rather than at the end — the form opened Oct 2 and stays editable until the deadline, so there is no
+reason to carry form-surprise risk into the last 48 hours.
+
+- ~~**Oct 2** — forum replies, submission draft, dashboard progress update.~~ **Lapsed.**
+- ~~**Oct 3–5** — frontend polish pass.~~ **Lapsed.** Nothing was committed Oct 2–5 either; the README
+  re-base above sat uncommitted in the working tree. Last commit is still `748e7b8` (Sep 23).
+
+### Re-based 2026-10-05 — full remaining scope across 5 working days (Oct 5–9)
+
+Two consecutive blocks have now lapsed, but the lapses were never a scope problem — the remaining work is
+~4 days against a 5-day window. Scope is kept in full. What changes is the *ordering*: the earlier plans
+sequenced work by rubric weight (polish first, because it's 20% of the score), which left the one **binary**
+item — the submission existing at all — until last. A polished project that misses the submission scores
+zero; an unpolished one that submits scores on four of five criteria. So the submission goes first, and the
+polish lands on top of a submission that already counts.
+
+What makes that cheap rather than wasteful: the product already works, and was re-verified on **2026-10-05**
+— contracts live on chain 10143 (`feeBps` 30, `feeRecipient` = deployer, `mUSD` responding), deployer funded
+at 4.53 MON, 26/26 tests passing with 25,600 fuzzed calls and 0 invariant violations, `pnpm build` clean on
+Next.js 16.3.5. A demo-able app exists *today*. The insurance take costs ~2 hrs and one throwaway recording.
+
+- [ ] **Day 1 — Oct 5: insurance submission (~2–3 hrs).** A complete, valid, scoring submission exists
+      before any polish is attempted.
+      1. Commit and push the README re-base — starts closing the 12-day history gap the Rules care about.
+      2. Record a ≤ 3:00 demo video of the flow **as it stands**. Rough is fine; it must show real testnet
+         interactions. (If Rabby shows a stuck "pending" mid-take, clear its signature/activity record and
+         reload — known wallet-extension issue, documented above, not a code bug.)
+      3. Fill the submission form, attach the video, **submit as complete, not draft.**
+      4. Reload and confirm server-side that it reads as submitted.
+      5. Post the dashboard progress update (also unlocks mentor support access).
+- [ ] **Day 1 also — PRF go/no-go (~1 hr, do it before anything else).** Open `mera.category.xyz/prf-demo/`
+      on the actual demo machine and browser and confirm PRF works. **If PRF is unavailable there, the whole
+      Mera track is dead on arrival** and Days 2–3 revert to the polish plan. Cheapest possible test of the
+      one thing that can't be worked around — never build on top of this unverified.
+- [ ] **Day 2 — Oct 6: Mera passkey account layer, on a branch.** Work on `feat/mera-passkey`, never on
+      `main` — the insurance submission from Day 1 must stay intact and demo-able at all times. Build:
+      passkey create + recover flows, session lifecycle (including `session.end()`), and the
+      `toViemAccount` → `walletClient` wiring for the customer pay path. Settle `rp.id` / the demo domain
+      first, since passkeys are domain-bound.
+- [ ] **Day 3 — Oct 7: AUSD swap + end-to-end verification, then a hard go/no-go.** Swap `MockUSD` → AUSD
+      (`0xa9012a...22dC`, 6 decimals — check the decimals assumption in the UI formatting) and replace the
+      "Add test funds" mint with the faucet's `requestFunds(address)`. Verify the full passkey → approve →
+      pay round trip on live testnet with `cast`, not just the UI.
+      **Go/no-go at end of Day 3: if the round trip isn't green, abandon the branch and keep `main`.** This
+      is the commitment point — do not carry a half-working account layer into Day 4.
+- [ ] **Day 4 — Oct 8: polish + PWA pass + cold-start test.** Loading and error states on every on-chain
+      call, consumer-facing copy pass (no "wallet"/"gas"/"approve"/"seed phrase" as user-facing jargon), and
+      the responsive/PWA pass — which does double duty as Product Quality polish and as the Agora "mobile"
+      story. Then the cold-start test: hand the pay link to a non-teammate and watch them complete it
+      unaided. Passkey onboarding makes this test *more* important, not less — it's a new flow no one has
+      used yet.
+- [ ] **Day 5 — Oct 9: finalize.** Re-record the video against the demo script, swap it into the submission,
+      final AI-disclosure pass covering the Mera work, walk the judging checklist item by item, re-verify
+      server-side that the submission reads complete. Select the Mera UX bounty on the dashboard (and Agora
+      only if the "mobile app" question got answered favourably).
+- Oct 10–11 — slack. Now genuinely needed rather than spare: Mera consumed most of the former margin.
+- Oct 12–13 — emergency buffer, untouched. Never plan to use the last day.
+
+**What this costs:** polish drops from ~2 days to ~1 (Day 4 absorbs it alongside the PWA pass and cold-start
+test), and Oct 10–11 stops being spare capacity. The trade is deliberate: Mera improves the 20% Track Fit
+score on the main $30k track regardless of any bounty, so it isn't competing with polish so much as doing
+the same job by better means. The branch discipline plus the Day 3 go/no-go is what keeps the downside
+bounded to lost time rather than a lost submission.
+
+**Scope decisions standing as of 2026-10-05:**
+- **Envio indexer** ($1,000) — cut. Nothing depends on it; invoice status is polled from the contract.
+- **Mera is back in.** See the reversal below — the Sep 22 "too thin to code against" assessment was wrong.
+
+### Reversal 2026-10-05: Mera is integrable, and the earlier assessment was wrong
+
+The Sep 22 decision to avoid Mera was based on reading its **documentation site**, which had no concrete
+function names. That was the wrong artifact to judge. The published npm package
+**`@category-labs/mera@0.2.0`** (created 2026-07-23, last modified 2026-08-12, MIT/Apache dual-licensed)
+was inspected directly on 2026-10-05 and is the opposite of thin:
+
+- **Full TypeScript source ships in the tarball** (`src/*.ts`), not just built output — so there is no
+  hallucination risk in coding against it. Every exported function carries exhaustive JSDoc naming its
+  explicit failure modes (`PRF_UNAVAILABLE`, `INPUT_INVALID`, `PASSKEY_OPERATION_FAILED`, `SESSION_ENDED`).
+- **Its peer dependency is `viem ^2.28.0`** — the stack this frontend already runs — and it ships a
+  dedicated `./viem` export.
+- **`toViemAccount(session)` returns a standard viem `LocalAccount`.** That is the decisive fact: it drops
+  into the existing viem/wagmi code rather than requiring an architectural rip-out.
+
+**The whole integration surface is four functions:** `createPasskeyWithPrfOutput` (new user) or
+`getPasskeyPrfOutput` (returning user) → `createSecp256k1SigningSession({ privateKey: prfOutput })` →
+`toViemAccount(session)` → `getEvmAddress(session.publicKey)`. The PRF output is 32 bytes and deterministic
+for a given passkey + salt + relying party, so the same passkey always reproduces the same address.
+
+What Mera is *not*: a smart-account or custody stack. Per its own README it provides authenticator-bound
+entropy and signing sessions and leaves "account derivation, recovery, storage, and product flows under
+application control." We own the derivation choice. That is more design responsibility than a drop-in wallet
+SDK, but it is also exactly what the Mera bounty asks for — "no seed phrase, no extension, no custody
+backend."
+
+**Two incidental wins that matter more than the bounty:**
+1. **It improves the main-track score on its own merits.** Track 02 is defined as a consumer "who may not
+   identify as a crypto user." A customer paying an invoice with Face ID and no browser extension *is* that
+   definition. This is core Track Fit work (20%) that happens to unlock a bounty — not bounty-chasing.
+2. **It removes the single known hazard from the demo recording.** Per `toViemAccount`'s docs, signing
+   "never shows a passkey prompt" — no extension in the signing path at all, which eliminates the Rabby
+   stuck-pending failure that disrupted the Sep 23 testing and was the main risk to a clean take.
+
+**The real remaining risk is WebAuthn PRF support**, not the SDK. `PRF_UNAVAILABLE` is a documented failure
+when the authenticator doesn't evaluate PRF. This must be verified on the actual demo machine and browser
+*before* any integration work — it is Day 1's first task, via Mera's own PRF demo at
+`mera.category.xyz/prf-demo/`. Also note passkeys are bound to the relying party (`rp.id`): a passkey made
+on `localhost` will not work on a deployed domain, so the demo domain must be settled before onboarding is
+built.
+
+**Honest split between the two bounties — they are not equally reachable:**
+- **Best Mera-Powered UX ($2,500)** — needs only Mera as the account layer. No unresolved questions.
+  Genuinely reachable.
+- **Agora Cross-Border ($10,000)** — needs mobile app **+** AUSD **+** Mera passkey onboarding **+** instant
+  settlement. AUSD is cheap (deployed at `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC`, faucet verified at
+  `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C`). But **"mobile app" is still unresolved** and the forum
+  thread asking about it was never answered. Mera itself ships a `react-native-webauthn-client` export and
+  lists React Native support, which cuts *against* a responsive-PWA reading — the sponsors plausibly mean a
+  real mobile app. Treat the $10k as a long shot layered on top, not the reason for doing this.
 
 ## Judging checklist (mapped to the real rubric)
 
@@ -290,11 +410,13 @@ does. The full signed-transaction flow (create → pay, real wallet) was human-v
 
 **Demo script (≤ 3:00):** 0:00–0:30 problem (slow, costly merchant settlement, named persona). 0:30–2:00 live
 checkout, real testnet payment, dashboard updating. 2:00–2:30 technical differentiation (non-custodial
-contract, on-chain invoice ids, indexed live feed). 2:30–3:00 impact and ask.
+contract, on-chain invoice ids, live status read straight from the chain). 2:30–3:00 impact and ask.
 
 ## Open decisions
 
-- Keep or cut Envio indexing (cheapest thing to drop if behind schedule).
+- ~~Keep or cut Envio indexing.~~ **Decided 2026-10-02: cut**, as a consequence of the re-based schedule
+  (see above). Don't describe the app as having an "indexed live feed" anywhere — status is polled from the
+  contract, and the demo script above was corrected to match.
 - Whether to pursue any sponsor bounty once the dashboard's actual terms are visible — bounties are scored
   40% on adherence to *their* published requirements, so only take one if we can read and hit those terms.
 - Mainnet vs testnet for the final demo — Rules allow either; testnet remains the safer default.
