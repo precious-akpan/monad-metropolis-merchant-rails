@@ -301,10 +301,13 @@ Next.js 16.3.5. A demo-able app exists *today*. The insurance take costs ~2 hrs 
       3. Fill the submission form, attach the video, **submit as complete, not draft.**
       4. Reload and confirm server-side that it reads as submitted.
       5. Post the dashboard progress update (also unlocks mentor support access).
-- [ ] **Day 1 also — PRF go/no-go (~1 hr, do it before anything else).** Open `mera.category.xyz/prf-demo/`
-      on the actual demo machine and browser and confirm PRF works. **If PRF is unavailable there, the whole
-      Mera track is dead on arrival** and Days 2–3 revert to the polish plan. Cheapest possible test of the
-      one thing that can't be worked around — never build on top of this unverified.
+- [x] **Day 1 also — PRF go/no-go: PASSED 2026-10-05.** Tested on the actual demo machine: Chrome 154 on
+      Linux, authenticator = **Google Password Manager passkey** (signed-in Chrome profile). Browser reports
+      `extension:prf: true`; Mera's live demo (`mera.category.xyz/demo/`, *not* `/prf-demo/`, which is only a
+      static explainer) completed **Create account → Sign in with the same address both times**, i.e. PRF
+      output is stable end to end. The gating risk for the $12.5k is cleared. Caveats that remain: Linux isn't
+      in Mera's published support table (this run is the evidence it works here), and the passkey is bound to
+      the *demo's* `rp.id` — our own app's `rp.id`/domain still has to be settled before onboarding is built.
 - [ ] **Day 2 — Oct 6: Mera passkey account layer, on a branch.** Work on `feat/mera-passkey`, never on
       `main` — the insurance submission from Day 1 must stay intact and demo-able at all times. Build:
       passkey create + recover flows, session lifecycle (including `session.end()`), and the
