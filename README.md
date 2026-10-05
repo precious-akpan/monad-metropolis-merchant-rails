@@ -316,16 +316,24 @@ Next.js 16.3.5. A demo-able app exists *today*. The insurance take costs ~2 hrs 
       pay round trip on live testnet with `cast`, not just the UI.
       **Go/no-go at end of Day 3: if the round trip isn't green, abandon the branch and keep `main`.** This
       is the commitment point — do not carry a half-working account layer into Day 4.
-- [ ] **Day 4 — Oct 8: polish + PWA pass + cold-start test.** Loading and error states on every on-chain
-      call, consumer-facing copy pass (no "wallet"/"gas"/"approve"/"seed phrase" as user-facing jargon), and
-      the responsive/PWA pass — which does double duty as Product Quality polish and as the Agora "mobile"
-      story. Then the cold-start test: hand the pay link to a non-teammate and watch them complete it
-      unaided. Passkey onboarding makes this test *more* important, not less — it's a new flow no one has
-      used yet.
-- [ ] **Day 5 — Oct 9: finalize.** Re-record the video against the demo script, swap it into the submission,
-      final AI-disclosure pass covering the Mera work, walk the judging checklist item by item, re-verify
-      server-side that the submission reads complete. Select the Mera UX bounty on the dashboard (and Agora
-      only if the "mobile app" question got answered favourably).
+- [ ] **Day 4 — Oct 8: real PWA + cross-border framing + cold-start test.** The PWA work is now
+      **bounty-load-bearing**, not incidental polish — the organizer confirmed a PWA qualifies, so it has to
+      actually be one:
+      - Web app manifest, service worker, icon set, standalone display mode.
+      - **Installability verified on a real phone** ("Add to Home Screen", launches without browser chrome).
+        Do not take this on trust from a desktop devtools audit.
+      - Cross-border framing in the **UI copy and seed data**: the Nigerian-freelancer-invoices-US-client
+        scenario, with the settle-time and fee comparison stated against correspondent banking, not just
+        against cards.
+      - Consumer-facing copy pass — no "wallet", "gas", "approve" or "seed phrase" as user-facing jargon.
+      - Loading and error states on every on-chain call.
+      - Cold-start test: hand the pay link to a non-teammate and watch them complete it unaided. Passkey
+        onboarding makes this *more* important, not less — it is a brand-new flow nobody has used yet.
+- [ ] **Day 5 — Oct 9: finalize.** Re-record the video against the demo script — it must now show passkey
+      onboarding, AUSD, the PWA, and the cross-border story, since all four are scored bounty terms. Swap it
+      into the submission, final AI-disclosure pass covering the Mera work, walk the judging checklist item by
+      item, re-verify server-side that the submission reads complete. **Select both bounties on the dashboard:
+      Agora Cross-Border ($10,000) and Best Mera-Powered UX ($2,500).**
 - Oct 10–11 — slack. Now genuinely needed rather than spare: Mera consumed most of the former margin.
 - Oct 12–13 — emergency buffer, untouched. Never plan to use the last day.
 
@@ -380,15 +388,53 @@ when the authenticator doesn't evaluate PRF. This must be verified on the actual
 on `localhost` will not work on a deployed domain, so the demo domain must be settled before onboarding is
 built.
 
-**Honest split between the two bounties — they are not equally reachable:**
-- **Best Mera-Powered UX ($2,500)** — needs only Mera as the account layer. No unresolved questions.
-  Genuinely reachable.
-- **Agora Cross-Border ($10,000)** — needs mobile app **+** AUSD **+** Mera passkey onboarding **+** instant
-  settlement. AUSD is cheap (deployed at `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC`, faucet verified at
-  `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C`). But **"mobile app" is still unresolved** and the forum
-  thread asking about it was never answered. Mera itself ships a `react-native-webauthn-client` export and
-  lists React Native support, which cuts *against* a responsive-PWA reading — the sponsors plausibly mean a
-  real mobile app. Treat the $10k as a long shot layered on top, not the reason for doing this.
+### Organizer answers — both questions ANSWERED 2026-09-23, 05:40 GMT+1 (recorded 2026-10-05)
+
+Both Support Forum threads were answered ~90 minutes after posting. An earlier check caught them at
+"Awaiting organizer" and was never repeated, so these answers sat unread for 12 days and the Agora bounty was
+written off on an inference the organizers had already overruled. **Re-check threads after posting; a status
+read minutes later proves nothing.**
+
+**Q: "Does a responsive/PWA web checkout qualify as 'mobile app' for the Agora Cross-Border Payments
+bounty?"** (Rules and eligibility)
+> **Organizer: "Yes, a PWA qualifies."**
+
+Unambiguous. **The Agora $10,000 bounty is reachable** — no native iOS/Android build required. This is the
+authoritative read on the bounty's "mobile app" wording and overrides any inference from Mera shipping a
+React Native client.
+
+**Q: "Where's the Monad testnet AUSD faucet?"** (Other)
+> **Organizer:** pointed at `docs.agora.finance/instant-settlement/guides/getting-testnet-tokens`.
+
+**That answer does not actually resolve it** — that page documents **Sepolia only**, and Agora's
+contract-deployments page lists Monad's faucet as "N/A". The working answer came from our own RPC research
+instead: the *same* faucet address is live on Monad testnet. Re-verified 2026-10-05:
+`0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` holds **~997M AUSD** and a `requestFunds(address)` dry-run
+succeeds with no revert. AUSD itself is live at `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC`, symbol `AUSD`,
+**6 decimals**. Don't rely on the organizer's link for this — rely on the verified addresses above.
+
+### Bounty targets, updated 2026-10-05 — both now reachable, $12,500 combined
+
+- **Best Mera-Powered UX ($2,500)** — needs Mera as the entire account layer. Reachable, no open questions.
+- **Best Cross-Border Payments App / Agora ($10,000)** — "Build a mobile app letting users send AUSD across
+  borders using Mera passkey onboarding and instant settlement." Now reachable. Status of each clause:
+  - *mobile app* — **PWA qualifies per the organizer.** Must be a genuinely installable PWA, not merely
+    responsive: web app manifest, service worker, icons, and installability verified on a real phone.
+  - *AUSD* — verified live, faucet working (above).
+  - *Mera passkey onboarding* — the Day 2 work. **Explicitly named in the bounty terms**, so it is mandatory
+    for this $10k, not optional.
+  - *instant settlement* — already built and demonstrated; the sub-second settle is the core pitch.
+  - *"send AUSD across borders"* — **the one genuine adherence gap.** Merchant Rails settles invoices; the
+    wording reads person-to-person remittance. Closing it by **framing, not new scope**: the demo scenario
+    becomes a Nigerian freelancer invoicing a US client — settles in under a second at 0.3% versus 3–5 days
+    and ~7% through correspondent banking. That is authentically cross-border, fits Track 02's consumer
+    definition, and reuses the "realistic seed merchant" work already budgeted. The cross-border framing must
+    land in the **UI copy and the demo narrative**, not just this README — bounties score 40% on adherence to
+    the published terms, and a judge reading "invoice settlement" will not infer "cross-border" unaided.
+
+**Consequence for the Day 3 go/no-go: the stakes are now $12,500, not $2,500.** Both bounties name Mera, so
+if the Mera integration fails, both are lost. That makes the Day 1 PRF check the highest-leverage hour in the
+whole plan — it is the one failure mode with no workaround, and it now gates $12.5k rather than $2.5k.
 
 ## Judging checklist (mapped to the real rubric)
 
