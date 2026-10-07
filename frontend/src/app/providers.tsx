@@ -8,6 +8,8 @@ import { monadTestnet } from "@/lib/chain";
 const wagmiConfig = createConfig({
   chains: [monadTestnet],
   connectors: [injected()],
+  // Monad blocks land in well under a second; the 4s default would hide that in the settle timer.
+  pollingInterval: 400,
   transports: {
     [monadTestnet.id]: http(),
   },
