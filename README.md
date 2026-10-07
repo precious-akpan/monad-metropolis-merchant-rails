@@ -9,11 +9,7 @@ transaction, the stablecoin lands with the merchant in under a second, and the c
 - **Track:** 02 — Consumer Products & Payments. Official definition (Rules §3.3): *"products whose primary
   user is a consumer who may not identify as a crypto user, and whose core value is a financial experience
   rather than a trading or market making product."* Merchant Rails is a direct fit.
-- **Plan of record:** this README. A Google Doc mirror exists for phone reading (Drive id
-  `1nWEbjz7hnKcy1lS5KtFaDQthLfPIq2mOUa1Z5yhLQi4`, "Metropolis Roadmap (latest, binding Rules)"). Both earlier
-  Drive docs (`15FJu4M_...` from 8 Sep and `1C3Ptpp...` "corrected 2026-09-22") are renamed `[SUPERSEDED]`
-  and point to this one. If the README and the Drive doc ever disagree, the README is correct — regenerate
-  the Drive doc from it, don't edit the Drive doc's facts by hand.
+- **Plan of record:** this README.
 
 ## Binding facts — from the official "Metropolis Hackathon Rules & Guidelines" modal, v3.0, last updated 3 Sep 2026
 
@@ -182,11 +178,9 @@ on-chain data, hardcoded in `frontend/src/lib/{chain,contracts}.ts`.
   labels. On success: elapsed time from real `Date.now()` timestamps around the transaction, framed against
   a card-payment baseline ("Settled in 0.8s. A card payment takes 2–3 business days and ~3% in fees.") —
   the "vs card" differentiator, driven by the real transaction, not a canned number. A clearly-labeled
-  **"See it settle on-chain →"** link to the transaction on MonadVision. This is deliberate: per
-  memory-only competitive intel (not detailed here — see the assistant's own notes), the closest Track 02
-  competitor hid/removed their explorer link entirely behind a database-only "payment." Ours stays visible
-  as a feature, satisfying Track Fit (no wallet/gas/seed-phrase language in the primary flow) *and* Monad
-  Integration (proof, not just a claim) at the same time.
+  **"See it settle on-chain →"** link to the transaction on MonadVision. This is deliberate: the proof stays
+  visible as a feature, satisfying Track Fit (no wallet/gas/seed-phrase language in the primary flow) *and*
+  Monad Integration (proof, not just a claim) at the same time.
 - `src/components/NetworkGuard.tsx` — blocks page content with a one-click "Switch to Monad Testnet" if the
   connected wallet is on the wrong chain, the most common way a live demo fails silently.
 - Block explorer: **MonadVision**, `https://testnet.monadvision.com` — `testnet.monadexplorer.com`
@@ -229,13 +223,11 @@ does. The full signed-transaction flow (create → pay, real wallet) was human-v
 
 - [x] **Sep 21** — contracts v0 + tests green
 - [x] **Sep 22 (AM)** — read the binding Rules modal; corrected prize pool, judging rubric, team size,
-      open-source requirement, video length, AI disclosure; added LICENSE; regenerated the Drive doc and
-      marked the two earlier ones `[SUPERSEDED]`
+      open-source requirement, video length, AI disclosure; added LICENSE
 - [x] **Sep 22** — pushed to a public GitHub remote: https://github.com/precious-akpan/monad-metropolis-merchant-rails
       (first commit `45d81be`). Commit early and often from here forward — a single squashed commit near
       the deadline is the wrong shape for the Rules' "commit history covers the build window" requirement.
-- [x] **Sep 22** — registration submitted (profile: Software Engineer, Nigeria/Ikorodu, GitHub
-      `precious-akpan` as the social link, solo — "Looking for a team" left off). Dashboard confirms:
+- [x] **Sep 22** — registration submitted (solo). Dashboard confirms:
       registration open through 6 Oct; **submission form itself opens Oct 2**, closes **14 Oct, 04:59 GMT+1**
       (= Oct 13, 11:59 PM ET — same deadline, different timezone display, no conflict).
 - [x] **Sep 22** — solo team created on the dashboard ("Precious Akpan · you", 1 member). Next dashboard
