@@ -31,6 +31,9 @@ export function useInvoice(id: `0x${string}` | undefined) {
     query: {
       enabled: Boolean(id),
       refetchInterval: 3000,
+      // Keep polling when the tab is hidden: the merchant dashboard is usually in a background tab
+      // while the customer pays in another, and it must already be current when it is refocused.
+      refetchIntervalInBackground: true,
     },
   });
 

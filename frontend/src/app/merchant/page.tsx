@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { parseEventLogs, stringToHex } from "viem";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
@@ -13,6 +13,13 @@ import { useInvoice } from "@/lib/useInvoice";
 
 export default function MerchantPage() {
   const { address, isConnected } = useAccount();
+  // Held here so a freshly created invoice appears in the list straight away; the list used to read
+  // localStorage only on its own renders, which creating an invoice never triggered.
+  const [ids, setIds] = useState<`0x${string}`[]>([]);
+
+  useEffect(() => {
+    setIds(address ? listInvoiceIds(address) : []);
+  }, [address]);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
@@ -27,15 +34,24 @@ export default function MerchantPage() {
         </p>
       ) : (
         <NetworkGuard>
-          <CreateInvoiceCard merchantAddress={address!} />
-          <InvoiceList merchantAddress={address!} />
+          <CreateInvoiceCard
+            merchantAddress={address!}
+            onCreated={() => setIds(listInvoiceIds(address!))}
+          />
+          <InvoiceList ids={ids} />
         </NetworkGuard>
       )}
     </main>
   );
 }
 
-function CreateInvoiceCard({ merchantAddress }: { merchantAddress: `0x${string}` }) {
+function CreateInvoiceCard({
+  merchantAddress,
+  onCreated,
+}: {
+  merchantAddress: `0x${string}`;
+  onCreated: () => void;
+}) {
   const [amountInput, setAmountInput] = useState("");
   const [reference, setReference] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -47,7 +63,8 @@ function CreateInvoiceCard({ merchantAddress }: { merchantAddress: `0x${string}`
 
   // Once the tx confirms, pull the real invoice id out of the InvoiceCreated event -- reading it
   // off the receipt is more honest than recomputing it client-side.
-  if (receipt && createdLink === null) {
+  useEffect(() => {
+    if (!receipt) return;
     const [event] = parseEventLogs({
       abi: merchantRailsContract.abi,
       eventName: "InvoiceCreated",
@@ -57,8 +74,10 @@ function CreateInvoiceCard({ merchantAddress }: { merchantAddress: `0x${string}`
       const id = event.args.id;
       saveInvoiceId(merchantAddress, id);
       setCreatedLink(`${window.location.origin}/pay/${id}`);
+      onCreated();
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receipt]);
 
   function handleCreate() {
     setFormError(null);
@@ -136,9 +155,7 @@ function CreateInvoiceCard({ merchantAddress }: { merchantAddress: `0x${string}`
   );
 }
 
-function InvoiceList({ merchantAddress }: { merchantAddress: `0x${string}` }) {
-  const ids = listInvoiceIds(merchantAddress);
-
+function InvoiceList({ ids }: { ids: `0x${string}`[] }) {
   if (ids.length === 0) {
     return (
       <p className="text-sm text-neutral-500">
