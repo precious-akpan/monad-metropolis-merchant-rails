@@ -93,18 +93,18 @@ function CreateInvoiceCard({ merchantAddress }: { merchantAddress: `0x${string}`
           onChange={(e) => setAmountInput(e.target.value)}
           placeholder="Amount, e.g. 25"
           inputMode="decimal"
-          className="flex-1 rounded-xl border border-neutral-300 px-4 py-2 text-lg focus:border-neutral-500 focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-2 text-lg focus:border-neutral-500 focus:outline-none"
         />
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value.slice(0, 30))}
           placeholder="What's it for? (optional)"
-          className="flex-1 rounded-xl border border-neutral-300 px-4 py-2 focus:border-neutral-500 focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-2 focus:border-neutral-500 focus:outline-none"
         />
         <button
           onClick={handleCreate}
           disabled={isSigning || isConfirming || !amountInput}
-          className="rounded-xl bg-neutral-900 px-5 py-2 font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="shrink-0 rounded-xl bg-neutral-900 px-5 py-2 font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSigning ? "Confirm in wallet…" : isConfirming ? "Creating…" : "Create"}
         </button>
