@@ -20,9 +20,13 @@ import { formatUsd, truncateAddress } from "@/lib/format";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
 
 type Step = "idle" | "approving" | "paying" | "done";
+type Settlement = { txHash: `0x${string}`; elapsedMs: number | null };
 
 export function PayClient({ id }: { id: `0x${string}` }) {
   const { invoice, exists, isLoading, refetch } = useInvoice(id);
+  // Held here, above the live-status switch, so the refetch that follows a payment flipping the
+  // invoice to Paid can't unmount the success screen out from under the payer.
+  const [settlement, setSettlement] = useState<Settlement | null>(null);
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 py-12">
@@ -30,7 +34,9 @@ export function PayClient({ id }: { id: `0x${string}` }) {
         <h1 className="text-xl font-semibold">Merchant Rails</h1>
       </header>
 
-      {isLoading ? (
+      {settlement ? (
+        <SuccessCard txHash={settlement.txHash} elapsedMs={settlement.elapsedMs} />
+      ) : isLoading ? (
         <p className="text-neutral-500">Loading…</p>
       ) : !exists || !invoice ? (
         <p className="text-neutral-600">
@@ -41,7 +47,15 @@ export function PayClient({ id }: { id: `0x${string}` }) {
       ) : invoice.status === InvoiceStatus.Cancelled ? (
         <SettledCard label="This payment request was cancelled." />
       ) : (
-        <OpenInvoice id={id} amount={invoice.amount} merchant={invoice.merchant} onSettled={refetch} />
+        <OpenInvoice
+          id={id}
+          amount={invoice.amount}
+          merchant={invoice.merchant}
+          onSettled={(result) => {
+            setSettlement(result);
+            refetch();
+          }}
+        />
       )}
     </main>
   );
@@ -64,7 +78,7 @@ function OpenInvoice({
   id: `0x${string}`;
   amount: bigint;
   merchant: `0x${string}`;
-  onSettled: () => void;
+  onSettled: (result: Settlement) => void;
 }) {
   const { address, isConnected } = useAccount();
 
@@ -99,11 +113,10 @@ function PaymentFlow({
   id: `0x${string}`;
   amount: bigint;
   payer: `0x${string}`;
-  onSettled: () => void;
+  onSettled: (result: Settlement) => void;
 }) {
   const [step, setStep] = useState<Step>("idle");
   const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
 
   const { data: balance, refetch: refetchBalance } = useReadContract({
     ...mockUsdContract,
@@ -142,9 +155,11 @@ function PaymentFlow({
 
   useEffect(() => {
     if (step === "paying" && payReceipt.data && startedAt) {
-      setElapsedMs(Date.now() - startedAt);
       setStep("done");
-      onSettled();
+      onSettled({
+        txHash: payReceipt.data.transactionHash,
+        elapsedMs: Date.now() - startedAt,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payReceipt.data]);
@@ -165,12 +180,6 @@ function PaymentFlow({
       setStep("paying");
       pay.writeContract({ ...merchantRailsContract, functionName: "pay", args: [id] });
     }
-  }
-
-  if (step === "done" && payReceipt.data) {
-    return (
-      <SuccessCard txHash={payReceipt.data.transactionHash} elapsedMs={elapsedMs} />
-    );
   }
 
   const busy = step === "approving" || step === "paying";
