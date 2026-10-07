@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useAccount,
   useReadContract,
@@ -27,6 +27,10 @@ export function PayClient({ id }: { id: `0x${string}` }) {
   // Held here, above the live-status switch, so the refetch that follows a payment flipping the
   // invoice to Paid can't unmount the success screen out from under the payer.
   const [settlement, setSettlement] = useState<Settlement | null>(null);
+  // The 3s status poll can see Paid in the gap between this payer's tx landing and its receipt
+  // resolving. While their own payment is in flight, Paid must not swap the flow out, or the
+  // success state is unmounted before it is ever set.
+  const [payInFlight, setPayInFlight] = useState(false);
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 py-12">
@@ -42,7 +46,7 @@ export function PayClient({ id }: { id: `0x${string}` }) {
         <p className="text-neutral-600">
           We couldn&apos;t find this payment request. Double-check the link.
         </p>
-      ) : invoice.status === InvoiceStatus.Paid ? (
+      ) : invoice.status === InvoiceStatus.Paid && !payInFlight ? (
         <SettledCard label="This has already been paid." />
       ) : invoice.status === InvoiceStatus.Cancelled ? (
         <SettledCard label="This payment request was cancelled." />
@@ -51,6 +55,7 @@ export function PayClient({ id }: { id: `0x${string}` }) {
           id={id}
           amount={invoice.amount}
           merchant={invoice.merchant}
+          onPayStart={() => setPayInFlight(true)}
           onSettled={(result) => {
             setSettlement(result);
             refetch();
@@ -73,11 +78,13 @@ function OpenInvoice({
   id,
   amount,
   merchant,
+  onPayStart,
   onSettled,
 }: {
   id: `0x${string}`;
   amount: bigint;
   merchant: `0x${string}`;
+  onPayStart: () => void;
   onSettled: (result: Settlement) => void;
 }) {
   const { address, isConnected } = useAccount();
@@ -97,7 +104,13 @@ function OpenInvoice({
         </div>
       ) : (
         <NetworkGuard>
-          <PaymentFlow id={id} amount={amount} payer={address!} onSettled={onSettled} />
+          <PaymentFlow
+            id={id}
+            amount={amount}
+            payer={address!}
+            onPayStart={onPayStart}
+            onSettled={onSettled}
+          />
         </NetworkGuard>
       )}
     </div>
@@ -108,15 +121,19 @@ function PaymentFlow({
   id,
   amount,
   payer,
+  onPayStart,
   onSettled,
 }: {
   id: `0x${string}`;
   amount: bigint;
   payer: `0x${string}`;
+  onPayStart: () => void;
   onSettled: (result: Settlement) => void;
 }) {
   const [step, setStep] = useState<Step>("idle");
-  const [startedAt, setStartedAt] = useState<number | null>(null);
+  // Clock starts when the pay transaction is broadcast (the wallet hands back a hash), not when the
+  // button is clicked, so the settle time excludes however long the payer took to approve popups.
+  const paySentAt = useRef<number | null>(null);
 
   const { data: balance, refetch: refetchBalance } = useReadContract({
     ...mockUsdContract,
@@ -154,11 +171,15 @@ function PaymentFlow({
   }, [approveReceipt.data]);
 
   useEffect(() => {
-    if (step === "paying" && payReceipt.data && startedAt) {
+    if (pay.data) paySentAt.current = Date.now();
+  }, [pay.data]);
+
+  useEffect(() => {
+    if (step === "paying" && payReceipt.data) {
       setStep("done");
       onSettled({
         txHash: payReceipt.data.transactionHash,
-        elapsedMs: Date.now() - startedAt,
+        elapsedMs: paySentAt.current !== null ? Date.now() - paySentAt.current : null,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,7 +189,8 @@ function PaymentFlow({
   const hasAllowance = allowance !== undefined && allowance >= amount;
 
   function handlePay() {
-    setStartedAt(Date.now());
+    paySentAt.current = null;
+    onPayStart();
     if (!hasAllowance) {
       setStep("approving");
       approve.writeContract({
