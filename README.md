@@ -457,9 +457,33 @@ whole plan — it is the one failure mode with no workaround, and it now gates $
 - [ ] Nothing in the repo we wouldn't want fully public (review is non-confidential — no keys, no trade secrets)
 - [ ] Submitted through the Hackathon website with a day or more of margin before Oct 13, 11:59 PM ET
 
-**Demo script (≤ 3:00):** 0:00–0:30 problem (slow, costly merchant settlement, named persona). 0:30–2:00 live
-checkout, real testnet payment, dashboard updating. 2:00–2:30 technical differentiation (non-custodial
-contract, on-chain invoice ids, live status read straight from the chain). 2:30–3:00 impact and ask.
+### Demo script v1 — the Day 1 "insurance" take (≤ 3:00, aim for ~2:45)
+
+Covers the app **as it stands on 2026-10-05**: Rabby wallet flow, `MockUSD`, no Mera/AUSD/PWA yet. Rewrite for
+Day 5 (see the note below the table). **Setup:** Rabby on Monad testnet (chain 10143); `localhost:3000/merchant`
+open; the block explorer (`testnet.monadvision.com`) in a second tab; no invoice created yet. Do one dry run
+unrecorded — it surfaces a stuck Rabby before it ruins a take.
+
+| Time | On screen | Narration |
+|---|---|---|
+| 0:00–0:25 | `/merchant`, empty | Small merchants and freelancers wait days for payments to settle and lose a slice to fees along the way. Merchant Rails is a non-custodial invoice checkout on Monad: the customer pays, the money lands with the merchant in one transaction, and the contract never holds the funds. |
+| 0:25–0:55 | Create an invoice (e.g. $5.00, with a reference) | As the merchant I create an invoice. It's recorded on-chain with a unique ID, and I get a shareable pay link. |
+| 0:55–1:15 | Open `/pay/<id>` as the customer | The customer opens the link and sees the amount and who they're paying. |
+| 1:15–2:00 | Add test funds → Pay, approving in Rabby; let the "vs card" timer run | I'll add some test funds and pay — two signatures, approve and pay. Watch the clock. *(Read the measured settle time off the screen.)* |
+| 2:00–2:25 | Dashboard flips to Paid → click **See it settle on-chain** | The dashboard updated live. Here it is on the block explorer, a real transaction on Monad testnet. The merchant received $4.985 — the $5.00 minus the 0.30% protocol fee. |
+| 2:25–2:50 | Back in the app | The contract is non-custodial: it only moves funds from payer to merchant and holds nothing. It's covered by 26 tests, including reentrancy attacks and 25,600 fuzzed calls. |
+| 2:50–3:00 | Landing page | Merchant Rails: instant, transparent settlement on Monad. The code is open source on GitHub. |
+
+**Rules for every take:**
+- **Say only what the screen shows.** Status is polled from the contract — never say "indexed live feed".
+  Don't mention passkeys or Mera until they are built and on camera.
+- **Read the settle time off the screen.** Don't claim a number that wasn't measured, and leave out card-fee or
+  bank-transfer comparisons until they're sourced.
+- **The hard cap is 3:00** (Rules §4.1, §9.4). Aim for ~2:45.
+
+**Day 5 rewrite must cover all four scored bounty terms on camera:** Mera passkey onboarding (create + sign in),
+AUSD as the settlement asset, the PWA installed on a real phone, and the cross-border story (Nigerian
+freelancer invoicing a US client) — in the UI copy as well as the narration.
 
 ## Open decisions
 
