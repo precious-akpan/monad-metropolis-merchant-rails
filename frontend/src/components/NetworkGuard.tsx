@@ -2,6 +2,7 @@
 
 import { useAccount, useSwitchChain } from "wagmi";
 import { monadTestnet } from "@/lib/chain";
+import { GasNotice } from "@/components/GasNotice";
 
 /**
  * Wrong network is the single most common way a demo fails silently (calls just revert).
@@ -13,7 +14,14 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
   const { switchChain, isPending, error } = useSwitchChain();
 
   if (!isConnected) return <>{children}</>;
-  if (chainId === monadTestnet.id) return <>{children}</>;
+  if (chainId === monadTestnet.id) {
+    return (
+      <>
+        <GasNotice />
+        {children}
+      </>
+    );
+  }
 
   return (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
