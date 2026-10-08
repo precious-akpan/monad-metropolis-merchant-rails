@@ -68,14 +68,18 @@ export async function createPasskeyAccount(): Promise<PasskeyAccount> {
   return startSession(created.prfOutput);
 }
 
-export async function signInWithPasskey(): Promise<PasskeyAccount> {
-  const known = readCredential();
+// By default sign-in is pinned to the passkey last used here. With `choose`, nothing is pinned and
+// the browser shows its own picker, which is how a different account's passkey is reached.
+export async function signInWithPasskey({
+  choose = false,
+}: { choose?: boolean } = {}): Promise<PasskeyAccount> {
+  const stored = readCredential();
   const { prfOutput, credentialId } = await getPasskeyPrfOutput({
     rpId: rpId(),
-    credential: known,
+    credential: choose ? undefined : stored,
   });
-  // With no stored record the browser may have used any discoverable passkey; remember which.
-  writeCredential(known?.credentialId === credentialId ? known : { credentialId });
+  // Without a pin the browser may have used any discoverable passkey; remember which.
+  writeCredential(stored?.credentialId === credentialId ? stored : { credentialId });
   return startSession(prfOutput);
 }
 
