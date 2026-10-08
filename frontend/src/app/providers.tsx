@@ -8,9 +8,14 @@ import { meraPasskey } from "@/lib/meraConnector";
 
 const wagmiConfig = createConfig({
   chains: [monadTestnet],
-  // The UI only offers the two passkey connectors; injected() stays registered so a wallet
+  // The UI only offers the passkey connectors; injected() stays registered so a wallet
   // fallback is a UI change, not a config change.
-  connectors: [meraPasskey({ mode: "create" }), meraPasskey({ mode: "signin" }), injected()],
+  connectors: [
+    meraPasskey({ mode: "create" }),
+    meraPasskey({ mode: "signin" }),
+    meraPasskey({ mode: "pick" }),
+    injected(),
+  ],
   // Monad blocks land in well under a second; the 4s default would hide that in the settle timer.
   pollingInterval: 400,
   transports: {

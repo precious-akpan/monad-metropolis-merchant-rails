@@ -8,7 +8,14 @@ import {
   signInWithPasskey,
 } from "./meraAccount";
 
-export type MeraMode = "create" | "signin";
+// "pick" signs in without pinning a passkey, so the browser's picker chooses which account.
+export type MeraMode = "create" | "signin" | "pick";
+
+const CONNECTOR_NAMES: Record<MeraMode, string> = {
+  create: "Create account with passkey",
+  signin: "Sign in with passkey",
+  pick: "Use a different passkey",
+};
 
 function requireAccount() {
   const current = currentPasskeyAccount();
@@ -21,10 +28,13 @@ function requireAccount() {
 export function meraPasskey({ mode }: { mode: MeraMode }) {
   return createConnector((config) => ({
     id: `mera-${mode}`,
-    name: mode === "create" ? "Create account with passkey" : "Sign in with passkey",
+    name: CONNECTOR_NAMES[mode],
     type: "mera",
     async connect() {
-      const { account } = mode === "create" ? await createPasskeyAccount() : await signInWithPasskey();
+      const { account } =
+        mode === "create"
+          ? await createPasskeyAccount()
+          : await signInWithPasskey({ choose: mode === "pick" });
       return { accounts: [getAddress(account.address)] as never, chainId: monadTestnet.id };
     },
     async disconnect() {
