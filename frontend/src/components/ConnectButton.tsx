@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { truncateAddress } from "@/lib/format";
 import { describePasskeyError, hasStoredPasskey } from "@/lib/meraAccount";
+
+const subscribeNever = () => () => {};
 
 const linkClass =
   "text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
@@ -12,10 +14,10 @@ export function ConnectButton() {
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending, error, reset } = useConnect();
   const { disconnect } = useDisconnect();
-  // localStorage is browser-only, so decide which action leads after mount.
-  const [returning, setReturning] = useState(false);
+  // localStorage is browser-only: read it as an external store, false while rendering on the server
+  // so hydration matches, and re-read on every render so a passkey saved by connecting is seen.
+  const returning = useSyncExternalStore(subscribeNever, hasStoredPasskey, () => false);
   const [confirmingCreate, setConfirmingCreate] = useState(false);
-  useEffect(() => setReturning(hasStoredPasskey()), [isConnected]);
 
   if (isConnected && address) {
     return (
