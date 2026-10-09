@@ -168,49 +168,64 @@ touched them) but should not be referenced anywhere — only the addresses above
 
 ## Frontend (Next.js 16 + TypeScript, `frontend/`)
 
-`pnpm create next-app` (TypeScript, Tailwind, App Router, `src/`) + `wagmi` + `viem` +
-`@tanstack/react-query`. **Wallet connector: `wagmi`'s built-in `injected()` only** — deliberately no
-WalletConnect (would need an external cloud.reown.com account signup) and no Mera, matching the safe-plan
-default from the Agora/Mera decision above. No `.env` needed — RPC URL and contract addresses are public
-on-chain data, hardcoded in `frontend/src/lib/{chain,contracts}.ts`.
+Next.js 16 (App Router, Tailwind) + `wagmi` 3 + `viem` + `@tanstack/react-query` + **Mera**
+(`@category-labs/mera`, pinned to 0.2.0: a preview release whose API may change before 1.0). The RPC URL and
+contract and token addresses are public on-chain data in `frontend/src/lib/{chain,contracts}.ts`. The only
+secret is a server-side gas-sponsor key, described below.
 
-- `src/app/merchant/page.tsx` — connect, create a payment request (amount + optional reference), get a
-  shareable `/pay/<id>` link, see your requests' status update live (polled directly from the contract
-  every 3s — no indexer; the invoice *id list* is per-browser `localStorage`,
-  `src/lib/invoiceStorage.ts` — an explicit v1 limitation, not cross-device. Envio would replace this if
-  there's time; it's the first thing to cut either way per the "Open decisions" section above).
-- `src/app/pay/[id]/PayClient.tsx` — the checkout: reads the invoice on-chain, shows a not-found/
-  already-settled state plainly, an "Add test funds" button (calls `MockUSD.mint` directly — intentionally
-  open for demos), then one "Pay" button that sequences `approve` → `pay` under the hood with clear step
-  labels. On success: elapsed time from real `Date.now()` timestamps around the transaction, framed against
-  a card-payment baseline ("Settled in 0.8s. A card payment takes 2–3 business days and ~3% in fees.") —
-  the "vs card" differentiator, driven by the real transaction, not a canned number. A clearly-labeled
-  **"See it settle on-chain →"** link to the transaction on MonadVision. This is deliberate: the proof stays
-  visible as a feature, satisfying Track Fit (no wallet/gas/seed-phrase language in the primary flow) *and*
-  Monad Integration (proof, not just a claim) at the same time.
-- `src/components/NetworkGuard.tsx` — blocks page content with a one-click "Switch to Monad Testnet" if the
-  connected wallet is on the wrong chain, the most common way a live demo fails silently.
-- Block explorer: **MonadVision**, `https://testnet.monadvision.com` — `testnet.monadexplorer.com`
-  308-redirects here; verified against Monad's own Foundry docs, which name "MonadVision" but give no URL.
+**Accounts are passkeys only.** No browser extension, no seed phrase shown to anyone, and no key ever sent to
+a server. A passkey's WebAuthn PRF output becomes the account seed (BIP-39, then the first BIP-44 Ethereum
+path), held in an in-memory signing session that is zeroed on sign-out. This follows Mera's own
+create-passkey-accounts and send-a-transaction recipes. The same passkey on the same site always reproduces
+the same address; a different site (or `localhost`) is a different account.
 
-**Fully verified end to end, 2026-09-23**, with a real wallet (Rabby) against live Monad testnet — every
-step confirmed independently on-chain via `cast`, not just trusted from the UI:
-- Connect → NetworkGuard correctly detected the wallet on the wrong chain (mainnet) and switched cleanly.
-- Create invoice → the on-chain invoice matched the form input exactly (merchant, token, $5.00 amount).
-- Add test funds → `MockUSD.mint` landed, balance updated.
-- Pay → `approve` then `pay`; final on-chain state: invoice status **Paid**, merchant balance **4.985
-  mUSD** — exactly `$5.00 − 0.30% fee`, matching the contract's fee math precisely.
+**The settlement asset is Agora's AUSD.** New invoices are created in AUSD and the payer gets test AUSD from
+Agora's testnet faucet. The pay page follows each invoice's own token, so older invoices in the superseded
+test token still open.
 
-**One real snag hit and resolved, worth remembering for demo day:** the first several `pay()` attempts got
-stuck showing "Paying…" indefinitely. Diagnosed thoroughly (ruled out: app code — a raw
-`window.ethereum.request` bypass hit the identical failure; network mismatch — cross-checked
-`testnet-rpc.monad.xyz` against Monad's `rpc-testnet.monadinfra.com`, same chain ID, blocks within 3 of
-each other, our contract's bytecode identical on both, neither had any record of the stuck transaction;
-contract logic — a `cast call` dry-run of the exact same `pay()` call succeeded with no revert). The actual
-cause: Rabby's own "pending" status was misleading — its signed transaction never actually reached any
-real mempool (matching a `"message channel closed before a response was received"` console warning), an
-extension-side glitch, not a bug here. **Fixed by clearing Rabby's signature/activity record** and
-retrying with a fresh page load. If this recurs during the actual demo recording, that's the fix.
+- `src/lib/meraDerive.ts`: PRF output to account, pure and free of browser APIs.
+- `src/lib/meraAccount.ts`: the passkey ceremonies and the in-memory session; only the credential id (no key
+  material) is kept in `localStorage`.
+- `src/lib/meraConnector.ts`: a wagmi connector that supplies the passkey account as a viem wallet client
+  through `getClient()`, so the existing hooks work unchanged. Three instances: create, sign in, pick a passkey.
+- `src/components/ConnectButton.tsx`: create / sign in / "use a different passkey". Creating always makes a
+  new, empty account, so it asks first when a passkey is already stored here.
+- `src/components/GasNotice.tsx` and `src/app/api/fund/route.ts`: a new account holds no MON, so the notice asks
+  the server to send 0.1 MON from a testnet-only sponsor key (server env var `SPONSOR_PRIVATE_KEY`). The amount
+  is fixed, accounts that already hold gas are left alone, requests must be same-origin, and there is a
+  best-effort per-IP limit. If funding is unavailable it falls back to showing the address to fund by hand.
+- `src/lib/resilientTransport.ts`: an RPC transport for a slow public node. If a send fails (for example "Failed
+  to fetch" because the reply was lost), it asks the node for that transaction's hash and treats a known
+  transaction as success, otherwise re-sends the same signed bytes. Found in real use: a payment landed on-chain
+  while the browser reported an error.
+- `src/app/merchant/page.tsx`: create a payment request (amount and an optional reference), get a shareable
+  `/pay/<id>` link, and watch its status update. Status is read directly from the contract (polled every 3s,
+  also in background tabs); there is no indexer. The invoice id list is per-browser `localStorage`
+  (`src/lib/invoiceStorage.ts`), an explicit limitation: it does not follow you across devices.
+- `src/app/pay/[id]/PayClient.tsx`: the checkout. It reads the invoice on-chain, shows a plain already-paid
+  state, offers "Get test AUSD (testnet only)", then one Pay button that sequences `approve` and `pay`. The
+  success screen shows the measured settle time (the clock starts when the pay transaction is broadcast, so it
+  excludes however long approval took) and a **"See it settle on-chain"** link to the transaction on MonadVision.
+  The proof stays visible on purpose: Monad integration shown, not just claimed.
+- `src/app/manifest.ts` and the icons: the app is installable ("Add to Home Screen") and opens standalone.
+  There is no service worker; install prompts do not need one and a worker risks caching wallet and RPC traffic.
+- `src/components/NetworkGuard.tsx`: a one-click fix if the connected account is on the wrong chain.
+- Block explorer: **MonadVision**, `https://testnet.monadvision.com`.
+
+**Limits, stated plainly.** This is a testnet product and the contract is unaudited. A PRF-capable authenticator
+is required (Chrome signed in to Google, Safari on a recent iPhone or Mac, 1Password, and others; see Mera's
+authenticator-support table); other browsers see a clear error and no fallback, by design. The sponsor wallet
+holds only faucet-funded testnet MON and can run dry or be drained by a script. Nothing here helps a payer who
+holds no stablecoin get one: on testnet that is the faucet button, and a real on-ramp for payers is not built.
+The public RPC is slow and spiky, so a first load can take several seconds.
+
+**Verified end to end by the author, 2026-10-09,** in Chrome 154 on Linux with a Google Password Manager passkey:
+create a passkey account, receive the automatic MON drip, claim test AUSD, pay an AUSD invoice, and see
+**"Settled in 0.4s"** with the AUSD transfer visible on the explorer. Earlier, on 2026-09-23, the original
+wallet-based build was verified the same way with a browser wallet; that build is superseded.
+Offline, with a fixed fake PRF output, the derived address was deterministic, matched viem's own independent
+BIP-39 derivation, signed transactions recovered to it, and signing failed after the session ended (a script
+run during development, not committed).
 
 ## AI tool disclosure (Rules §4.1.4 requires this before submission)
 
