@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
 import { formatUsd, parseUsd } from "@/lib/format";
 import { listInvoiceIds, saveInvoiceId } from "@/lib/invoiceStorage";
-import { useInvoice } from "@/lib/useInvoice";
+import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
 
 export default function MerchantPage() {
   const { address, isConnected } = useAccount();
@@ -55,8 +55,7 @@ function CreateInvoiceCard({
   const [amountInput, setAmountInput] = useState("");
   const [reference, setReference] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [createdLink, setCreatedLink] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [created, setCreated] = useState<{ id: `0x${string}`; link: string } | null>(null);
 
   const { writeContract, data: txHash, isPending: isSigning, error: writeError } = useWriteContract();
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
@@ -73,7 +72,7 @@ function CreateInvoiceCard({
     if (event) {
       const id = event.args.id;
       saveInvoiceId(merchantAddress, id);
-      setCreatedLink(`${window.location.origin}/pay/${id}`);
+      setCreated({ id, link: `${window.location.origin}/pay/${id}` });
       onCreated();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,8 +80,7 @@ function CreateInvoiceCard({
 
   function handleCreate() {
     setFormError(null);
-    setCreatedLink(null);
-    setCopied(false);
+    setCreated(null);
     let amount: bigint;
     try {
       amount = parseUsd(amountInput);
@@ -132,26 +130,41 @@ function CreateInvoiceCard({
       {writeError ? (
         <p className="mt-2 text-sm text-red-600">{writeError.message}</p>
       ) : null}
-      {createdLink ? (
-        <div className="mt-4 rounded-xl bg-green-50 p-4">
-          <p className="mb-2 text-sm text-green-800">Payment request ready.</p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 truncate rounded-lg bg-white px-3 py-2 text-xs text-neutral-700">
-              {createdLink}
-            </code>
-            <button
-              onClick={async () => {
-                await navigator.clipboard.writeText(createdLink);
-                setCopied(true);
-              }}
-              className="rounded-lg border border-green-300 px-3 py-2 text-xs font-medium text-green-800 hover:bg-green-100"
-            >
-              {copied ? "Copied" : "Copy link"}
-            </button>
-          </div>
-        </div>
-      ) : null}
+      {created ? <ReadyLink id={created.id} link={created.link} /> : null}
     </section>
+  );
+}
+
+// The link a merchant just created, shown until it has done its job. Once the invoice is paid or
+// cancelled the list below carries the status, so the card goes away on its own.
+function ReadyLink({ id, link }: { id: `0x${string}`; link: string }) {
+  const { invoice } = useInvoice(id);
+  const [copied, setCopied] = useState(false);
+
+  if (invoice && invoice.status !== InvoiceStatus.Open) return null;
+
+  return (
+    <div className="mt-4 rounded-xl bg-green-50 p-4">
+      <p className="mb-2 text-sm text-green-800">Payment request ready.</p>
+      <div className="flex items-center gap-2">
+        <code className="min-w-0 flex-1 truncate rounded-lg bg-white px-3 py-2 text-xs text-neutral-700">
+          {link}
+        </code>
+        <button
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(link);
+              setCopied(true);
+            } catch {
+              setCopied(false);
+            }
+          }}
+          className="shrink-0 rounded-lg border border-green-300 px-3 py-2 text-xs font-medium text-green-800 hover:bg-green-100"
+        >
+          {copied ? "Copied" : "Copy link"}
+        </button>
+      </div>
+    </div>
   );
 }
 
