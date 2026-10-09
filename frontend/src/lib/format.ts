@@ -1,9 +1,9 @@
 import { formatUnits, parseUnits } from "viem";
-import { MOCK_USD_DECIMALS } from "./contracts";
+import { STABLECOIN_DECIMALS } from "./contracts";
 
 /** Base units (bigint) -> a "$25.00"-style display string. */
 export function formatUsd(amount: bigint): string {
-  const n = Number(formatUnits(amount, MOCK_USD_DECIMALS));
+  const n = Number(formatUnits(amount, STABLECOIN_DECIMALS));
   return n.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
@@ -18,7 +18,7 @@ export function parseUsd(input: string): bigint {
   if (!/^\d+(\.\d{1,6})?$/.test(cleaned) || cleaned === "") {
     throw new Error("Enter an amount like 25 or 25.50");
   }
-  return parseUnits(cleaned, MOCK_USD_DECIMALS);
+  return parseUnits(cleaned, STABLECOIN_DECIMALS);
 }
 
 export function truncateAddress(address: string): string {
