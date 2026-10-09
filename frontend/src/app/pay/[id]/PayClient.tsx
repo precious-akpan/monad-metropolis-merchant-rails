@@ -222,11 +222,11 @@ function PaymentFlow({
     step === "approving"
       ? approveReceipt.isLoading
         ? "Approving…"
-        : "Confirm in wallet…"
+        : "Signing…"
       : step === "paying"
         ? payReceipt.isLoading
           ? "Paying…"
-          : "Confirm in wallet…"
+          : "Signing…"
         : "Pay";
 
   return (
@@ -295,7 +295,7 @@ function SuccessCard({
         {seconds ? `Settled in ${seconds}s.` : "Settled."}
       </p>
       <p className="text-sm text-green-700">
-        A card payment takes 2–3 business days and around 3% in fees.
+        Card and bank payments across borders can take days to settle.
       </p>
       <a
         href={explorerUrl}
