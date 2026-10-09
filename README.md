@@ -231,26 +231,26 @@ run during development, not committed).
 
 ## AI tool disclosure (Rules §4.1.4 requires this before submission)
 
-An AI coding agent (Claude Code) was used throughout this project, under the author's direction and review.
+I used an AI coding agent (Claude Code) throughout this project, under my direction and review.
 Specifically:
 
-- **Contracts, tests, deploy script.** Drafted with the agent. The payment and fee logic and every adversarial
-  test case were specified and checked line by line by the author. The reentrancy mock (`ReentrantERC20.sol`),
-  its 3 tests, and the invariant handler and campaign were agent-drafted, then run and inspected by the author
-  (26/26 passing, 25,600 fuzzed calls, 0 invariant violations) before being trusted.
+- **Contracts, tests, deploy script.** Drafted with the agent. I specified the payment and fee logic and every
+  adversarial test case, and checked them line by line. The reentrancy mock (`ReentrantERC20.sol`), its 3 tests,
+  and the invariant handler and campaign were agent-drafted; I ran and inspected them (26/26 passing, 25,600
+  fuzzed calls, 0 invariant violations) before trusting them.
 - **Frontend.** Written by the agent end to end: pages, components, the on-chain read and write hooks.
 - **Passkey accounts (Mera), the gas-funding route, the RPC transport, the AUSD switch, the installable-app
   manifest and the copy.** Also agent-written, following Mera's published recipes and the documentation bundled
   with Next.js 16 and wagmi 3.
 - **This README and the submission text.** Drafted with the agent and edited against what was verified.
 
-**What was and was not reviewed by a human.** The contract was reviewed line by line. The frontend was not:
-the author's review there was at the level of running it, type-checking, and exercising the real flows, since
-none of it takes custody of funds the way the contract would. What backs it: an offline script (fixed fake PRF
+**What I did and did not review by hand.** I reviewed the contract line by line. I did not review the
+frontend that way: my review there was at the level of running it, type-checking, and exercising the real
+flows, since none of it takes custody of funds the way the contract would. What backs it: an offline script (fixed fake PRF
 output) showing the derived address is deterministic, matches viem's independent derivation, and signs
 correctly; `curl` checks of the funding route's validation and no-key paths; a local fake RPC that drops
-replies to test the transport; type-check and lint on the new files; and the author's own end-to-end runs with
-a real passkey on Monad testnet (create an account, receive the MON drip, claim test AUSD, pay an invoice,
+replies to test the transport; type-check and lint on the new files; and my own end-to-end runs with a
+real passkey on Monad testnet (create an account, receive the MON drip, claim test AUSD, pay an invoice,
 confirm the transfer on the explorer).
 
 **Defects found by running it, then fixed:** the success screen vanishing when a status poll saw "Paid" mid-
