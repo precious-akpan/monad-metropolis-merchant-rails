@@ -18,13 +18,29 @@ export function ConnectButton() {
   // so hydration matches, and re-read on every render so a passkey saved by connecting is seen.
   const returning = useSyncExternalStore(subscribeNever, hasStoredPasskey, () => false);
   const [confirmingCreate, setConfirmingCreate] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-neutral-600">
-          {truncateAddress(address)}
-        </span>
+        <button
+          type="button"
+          title={`${address} (click to copy)`}
+          aria-label={`Your account address is ${address}. Click to copy it.`}
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(address);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            } catch {
+              // Clipboard blocked: the full address is still in the tooltip.
+              setCopied(false);
+            }
+          }}
+          className="font-mono text-sm font-medium text-neutral-600 hover:text-neutral-900"
+        >
+          {copied ? "Copied" : truncateAddress(address)}
+        </button>
         <button
           onClick={() => disconnect()}
           className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
