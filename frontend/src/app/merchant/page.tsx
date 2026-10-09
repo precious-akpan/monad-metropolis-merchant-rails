@@ -30,7 +30,7 @@ export default function MerchantPage() {
 
       {!isConnected ? (
         <p className="text-neutral-600">
-          Connect to start creating payment requests.
+          Sign in with a passkey to start creating payment requests.
         </p>
       ) : (
         <NetworkGuard>
@@ -117,7 +117,7 @@ function CreateInvoiceCard({
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value.slice(0, 30))}
-          placeholder="What's it for? (optional)"
+          placeholder="What's it for? e.g. Logo design, NYC client"
           className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-2 focus:border-neutral-500 focus:outline-none"
         />
         <button
@@ -125,7 +125,7 @@ function CreateInvoiceCard({
           disabled={isSigning || isConfirming || !amountInput}
           className="shrink-0 rounded-xl bg-neutral-900 px-5 py-2 font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSigning ? "Confirm in wallet…" : isConfirming ? "Creating…" : "Create"}
+          {isSigning ? "Signing…" : isConfirming ? "Creating…" : "Create"}
         </button>
       </div>
       {formError ? <p className="mt-2 text-sm text-red-600">{formError}</p> : null}
