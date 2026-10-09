@@ -13,8 +13,12 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { monadTestnet } from "@/lib/chain";
 import {
   MERCHANT_RAILS_ADDRESS,
+  ausdFaucetContract,
+  isAusd,
   merchantRailsContract,
   mockUsdContract,
+  tokenContract,
+  tokenLabel,
 } from "@/lib/contracts";
 import { formatUsd, truncateAddress } from "@/lib/format";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
@@ -55,6 +59,7 @@ export function PayClient({ id }: { id: `0x${string}` }) {
           id={id}
           amount={invoice.amount}
           merchant={invoice.merchant}
+          token={invoice.token}
           onPayStart={() => setPayInFlight(true)}
           onSettled={(result) => {
             setSettlement(result);
@@ -78,12 +83,14 @@ function OpenInvoice({
   id,
   amount,
   merchant,
+  token,
   onPayStart,
   onSettled,
 }: {
   id: `0x${string}`;
   amount: bigint;
   merchant: `0x${string}`;
+  token: `0x${string}`;
   onPayStart: () => void;
   onSettled: (result: Settlement) => void;
 }) {
@@ -96,6 +103,7 @@ function OpenInvoice({
           {truncateAddress(merchant)} is requesting
         </p>
         <p className="mt-1 text-4xl font-semibold">{formatUsd(amount)}</p>
+        <p className="mt-1 text-xs text-neutral-400">Paid in {tokenLabel(token)}</p>
       </div>
 
       {!isConnected ? (
@@ -107,6 +115,7 @@ function OpenInvoice({
           <PaymentFlow
             id={id}
             amount={amount}
+            token={token}
             payer={address!}
             onPayStart={onPayStart}
             onSettled={onSettled}
@@ -120,39 +129,43 @@ function OpenInvoice({
 function PaymentFlow({
   id,
   amount,
+  token,
   payer,
   onPayStart,
   onSettled,
 }: {
   id: `0x${string}`;
   amount: bigint;
+  token: `0x${string}`;
   payer: `0x${string}`;
   onPayStart: () => void;
   onSettled: (result: Settlement) => void;
 }) {
   const [step, setStep] = useState<Step>("idle");
+  const erc20 = tokenContract(token);
   // Clock starts when the pay transaction is broadcast (the wallet hands back a hash), not when the
   // button is clicked, so the settle time excludes however long the payer took to approve popups.
   const paySentAt = useRef<number | null>(null);
 
   const { data: balance, refetch: refetchBalance } = useReadContract({
-    ...mockUsdContract,
+    ...erc20,
     functionName: "balanceOf",
     args: [payer],
     query: { refetchInterval: 3000 },
   });
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    ...mockUsdContract,
+    ...erc20,
     functionName: "allowance",
     args: [payer, MERCHANT_RAILS_ADDRESS],
   });
 
-  const mint = useWriteContract();
-  const mintReceipt = useWaitForTransactionReceipt({ hash: mint.data });
+  // Testnet only: AUSD comes from Agora's faucet; the older test token has an open mint.
+  const claim = useWriteContract();
+  const claimReceipt = useWaitForTransactionReceipt({ hash: claim.data });
   useEffect(() => {
-    if (mintReceipt.data) refetchBalance();
+    if (claimReceipt.data) refetchBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mintReceipt.data]);
+  }, [claimReceipt.data]);
 
   const approve = useWriteContract();
   const approveReceipt = useWaitForTransactionReceipt({ hash: approve.data });
@@ -194,7 +207,7 @@ function PaymentFlow({
     if (!hasAllowance) {
       setStep("approving");
       approve.writeContract({
-        ...mockUsdContract,
+        ...erc20,
         functionName: "approve",
         args: [MERCHANT_RAILS_ADDRESS, amount],
       });
@@ -221,18 +234,26 @@ function PaymentFlow({
       {!hasFunds ? (
         <button
           onClick={() => {
-            mint.writeContract({
-              ...mockUsdContract,
-              functionName: "mint",
-              args: [payer, amount],
-            });
+            if (isAusd(token)) {
+              claim.writeContract({
+                ...ausdFaucetContract,
+                functionName: "requestFunds",
+                args: [payer],
+              });
+            } else {
+              claim.writeContract({
+                ...mockUsdContract,
+                functionName: "mint",
+                args: [payer, amount],
+              });
+            }
           }}
-          disabled={mint.isPending || mintReceipt.isLoading}
+          disabled={claim.isPending || claimReceipt.isLoading}
           className="rounded-xl border border-neutral-300 px-5 py-3 font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:opacity-50"
         >
-          {mint.isPending || mintReceipt.isLoading
-            ? "Adding test funds…"
-            : "Add test funds (testnet only)"}
+          {claim.isPending || claimReceipt.isLoading
+            ? `Getting test ${tokenLabel(token)}…`
+            : `Get test ${tokenLabel(token)} (testnet only)`}
         </button>
       ) : null}
       <button
@@ -242,13 +263,19 @@ function PaymentFlow({
       >
         {label}
       </button>
-      {(approve.error || pay.error || mint.error) ? (
+      {(approve.error || pay.error || claim.error) ? (
         <p className="text-sm text-red-600">
-          {(approve.error ?? pay.error ?? mint.error)?.message}
+          {errorText(approve.error ?? pay.error ?? claim.error)}
         </p>
       ) : null}
     </div>
   );
+}
+
+// viem's full message includes the raw request and call data; its shortMessage is the readable part.
+function errorText(error: Error | null | undefined): string {
+  if (!error) return "";
+  return (error as { shortMessage?: string }).shortMessage ?? error.message;
 }
 
 function SuccessCard({
