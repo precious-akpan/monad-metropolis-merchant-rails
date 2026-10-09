@@ -189,6 +189,29 @@ function InvoiceList({ ids }: { ids: `0x${string}`[] }) {
   );
 }
 
+// Only an open invoice can still be paid, so only it offers its link. This copies; the old "Copy pay
+// link" was an anchor that opened the pay page instead.
+function CopyPayLink({ link }: { link: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(link);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          setCopied(false);
+        }
+      }}
+      className="text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
+    >
+      {copied ? "Copied" : "Copy pay link"}
+    </button>
+  );
+}
+
 function InvoiceRow({ id }: { id: `0x${string}` }) {
   const { invoice, exists, isLoading } = useInvoice(id);
   const link = `${typeof window !== "undefined" ? window.location.origin : ""}/pay/${id}`;
@@ -205,12 +228,7 @@ function InvoiceRow({ id }: { id: `0x${string}` }) {
     <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4">
       <div>
         <p className="font-medium">{formatUsd(invoice.amount)}</p>
-        <a
-          href={link}
-          className="text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
-        >
-          Copy pay link
-        </a>
+        {invoice.status === InvoiceStatus.Open ? <CopyPayLink link={link} /> : null}
       </div>
       <StatusBadge status={invoice.status} />
     </div>
