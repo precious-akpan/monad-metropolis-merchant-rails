@@ -219,9 +219,10 @@ holds only faucet-funded testnet MON and can run dry or be drained by a script. 
 holds no stablecoin get one: on testnet that is the faucet button, and a real on-ramp for payers is not built.
 The public RPC is slow and spiky, so a first load can take several seconds.
 
-**Verified end to end by the author, 2026-10-09,** in Chrome 154 on Linux with a Google Password Manager passkey:
-create a passkey account, receive the automatic MON drip, claim test AUSD, pay an AUSD invoice, and see
-**"Settled in 0.4s"** with the AUSD transfer visible on the explorer. Earlier, on 2026-09-23, the original
+**Verified end to end by the author, 2026-10-09:** create a passkey account, receive the automatic MON drip,
+claim test AUSD, pay an AUSD invoice, and see **"Settled in 0.4s"** with the AUSD transfer visible on the
+explorer. Signing back in with the same passkey returned the same address, and the full flow was repeated on a
+local production build. Earlier, on 2026-09-23, the original
 wallet-based build was verified the same way with a browser wallet; that build is superseded.
 Offline, with a fixed fake PRF output, the derived address was deterministic, matched viem's own independent
 BIP-39 derivation, signed transactions recovered to it, and signing failed after the session ended (a script
