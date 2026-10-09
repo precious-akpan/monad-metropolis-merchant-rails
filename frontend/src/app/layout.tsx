@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -15,7 +15,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Merchant Rails",
-  description: "Pay an invoice, settle in under a second.",
+  description: "Get paid by clients anywhere in under a second.",
+  appleWebApp: { capable: true, title: "Merchant Rails", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0e211f",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
