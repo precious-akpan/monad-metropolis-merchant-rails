@@ -146,7 +146,14 @@ forge script script/Deploy.s.sol --rpc-url monad_testnet --account monad-deploye
 | Contract | Address |
 |---|---|
 | **MerchantRails** | `0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6` |
-| **MockUSD** (testnet only) | `0x8954CadCE9B84DF214A77C3dCa5977573fb7E340` |
+| **AUSD** (Agora's stablecoin; the settlement asset) | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` |
+| **AUSD testnet faucet** (Agora's; `requestFunds(address)`) | `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` |
+| **MockUSD** (earlier open-mint test token, testnet only; superseded by AUSD) | `0x8954CadCE9B84DF214A77C3dCa5977573fb7E340` |
+
+AUSD and its faucet are Agora's contracts, not ours; both were checked on Monad testnet on 2026-10-09: AUSD
+reports 6 decimals (the same as MockUSD) and is an upgradeable proxy, and the faucet holds AUSD and reports
+AUSD as its token. `MerchantRails` takes the token as an argument with no allowlist and moves funds with
+SafeERC20, so it works with AUSD without redeploying.
 
 Deployer / fee recipient: `0x013032166b72D40C43Ccc6B8cf776E4763f58162`. `feeBps` = 30 (0.30%), confirmed by
 calling `feeRecipient()`/`feeBps()` directly against the deployed bytecode, and the deploy tx's on-chain
