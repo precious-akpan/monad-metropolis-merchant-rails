@@ -1,6 +1,7 @@
-import { createWalletClient, getAddress, http, numberToHex } from "viem";
+import { createWalletClient, getAddress, numberToHex } from "viem";
 import { createConnector } from "wagmi";
 import { monadTestnet } from "./chain";
+import { resilientHttp } from "./resilientTransport";
 import {
   createPasskeyAccount,
   currentPasskeyAccount,
@@ -65,7 +66,7 @@ export function meraPasskey({ mode }: { mode: MeraMode }) {
       return createWalletClient({
         account: requireAccount().account,
         chain: monadTestnet,
-        transport: http(monadTestnet.rpcUrls.default.http[0]),
+        transport: resilientHttp(monadTestnet.rpcUrls.default.http[0]),
       });
     },
     onAccountsChanged(accounts) {
