@@ -6,7 +6,7 @@ import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteCont
 import { ConnectButton } from "@/components/ConnectButton";
 import { NetworkGuard } from "@/components/NetworkGuard";
 import { StatusBadge } from "@/components/StatusBadge";
-import { merchantRailsContract, MOCK_USD_ADDRESS } from "@/lib/contracts";
+import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
 import { formatUsd, parseUsd } from "@/lib/format";
 import { listInvoiceIds, saveInvoiceId } from "@/lib/invoiceStorage";
 import { useInvoice } from "@/lib/useInvoice";
@@ -97,7 +97,7 @@ function CreateInvoiceCard({
     writeContract({
       ...merchantRailsContract,
       functionName: "createInvoice",
-      args: [MOCK_USD_ADDRESS, amount, 0n, refBytes],
+      args: [AUSD_ADDRESS, amount, 0n, refBytes],
     });
   }
 
