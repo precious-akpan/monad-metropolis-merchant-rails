@@ -5,6 +5,7 @@ import { parseEventLogs, stringToHex } from "viem";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
 import { NetworkGuard } from "@/components/NetworkGuard";
+import { TokenBalance } from "@/components/TokenBalance";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
 import { formatUsd, parseUsd } from "@/lib/format";
@@ -34,6 +35,7 @@ export default function MerchantPage() {
         </p>
       ) : (
         <NetworkGuard>
+          <TokenBalance token={AUSD_ADDRESS} owner={address!} label="Your balance" />
           <CreateInvoiceCard
             merchantAddress={address!}
             onCreated={() => setIds(listInvoiceIds(address!))}

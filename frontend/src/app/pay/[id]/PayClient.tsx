@@ -22,6 +22,7 @@ import {
   tokenContract,
   tokenLabel,
 } from "@/lib/contracts";
+import { TokenBalance } from "@/components/TokenBalance";
 import { formatUsd, truncateAddress } from "@/lib/format";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
 
@@ -275,6 +276,7 @@ function PaymentFlow({
 
   return (
     <div className="flex flex-col gap-3">
+      <TokenBalance token={token} owner={payer} />
       {!hasFunds ? (
         <button
           onClick={() => {
