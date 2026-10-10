@@ -1,13 +1,13 @@
 import { createPublicClient, createWalletClient, getAddress, http, isAddress, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { monadTestnet } from "@/lib/chain";
+import { MIN_GAS_BALANCE } from "@/lib/gas";
 
 export const runtime = "nodejs";
 
 // Testnet-only gas for brand-new passkey accounts. The amount is fixed here, never taken from the
-// caller, and only accounts that cannot yet pay for a transaction are topped up.
+// caller, and only accounts too low to finish a payment (see MIN_GAS_BALANCE) are topped up.
 const DRIP = parseEther("0.1");
-const ENOUGH_GAS = parseEther("0.02");
 const SPONSOR_RESERVE = parseEther("0.01");
 const IP_WINDOW_MS = 60_000;
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   } catch {
     return reply({ status: "error", error: "Couldn't check the account balance just now." }, 502);
   }
-  if (balance >= ENOUGH_GAS) {
+  if (balance >= MIN_GAS_BALANCE) {
     return reply({ status: "not-needed" });
   }
 
