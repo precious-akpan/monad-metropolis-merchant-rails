@@ -6,7 +6,7 @@ import { describePasskeyError, revealRecoveryPhrase } from "@/lib/meraAccount";
 const AUTO_HIDE_MS = 60_000;
 
 const linkClass =
-  "text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
+  "whitespace-nowrap text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
 
 // Backing up an account means writing down its 24 words. They are derived again from a fresh passkey
 // touch, shown for a minute, and held only in this component's state, never saved anywhere.

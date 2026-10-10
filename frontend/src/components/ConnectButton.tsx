@@ -9,7 +9,7 @@ import { describePasskeyError, hasStoredPasskey } from "@/lib/meraAccount";
 const subscribeNever = () => () => {};
 
 const linkClass =
-  "text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
+  "whitespace-nowrap text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
 
 export function ConnectButton() {
   const { address, isConnected } = useAccount();
@@ -38,14 +38,14 @@ export function ConnectButton() {
               setCopied(false);
             }
           }}
-          className="font-mono text-sm font-medium text-neutral-600 hover:text-neutral-900"
+          className="whitespace-nowrap font-mono text-sm font-medium text-neutral-600 hover:text-neutral-900"
         >
           {copied ? "Copied" : truncateAddress(address)}
         </button>
         <RecoveryPhrase address={address} />
         <button
           onClick={() => disconnect()}
-          className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
+          className="whitespace-nowrap text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
         >
           Sign out
         </button>
