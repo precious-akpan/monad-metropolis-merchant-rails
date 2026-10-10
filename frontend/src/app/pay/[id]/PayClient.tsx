@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   useAccount,
+  useBalance,
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -11,6 +12,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { NetworkGuard } from "@/components/NetworkGuard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { monadTestnet } from "@/lib/chain";
+import { MIN_GAS_BALANCE } from "@/lib/gas";
 import {
   MERCHANT_RAILS_ADDRESS,
   ausdFaucetContract,
@@ -155,6 +157,12 @@ function PaymentFlow({
   // button is clicked, so the settle time excludes however long the payer took to approve popups.
   const paySentAt = useRef<number | null>(null);
 
+  // Monad reserves a transaction's whole gas limit up front, so an account too low in MON cannot send
+  // the claim, approve or pay. Sending anyway leaves the payer waiting on a transaction that never
+  // lands; hold the buttons until the gas notice has topped the account up.
+  const { data: native } = useBalance({ address: payer, query: { refetchInterval: 3000 } });
+  const lowGas = native !== undefined && native.value < MIN_GAS_BALANCE;
+
   const { data: balance, refetch: refetchBalance } = useReadContract({
     ...erc20,
     functionName: "balanceOf",
@@ -253,7 +261,9 @@ function PaymentFlow({
   const busy = (step === "approving" || step === "paying") && !failed;
   const label = failed
     ? "Try again"
-    : step === "approving"
+    : lowGas && !busy
+      ? "Waiting for network fees…"
+      : step === "approving"
       ? approve.data
         ? "Approving…"
         : "Signing…"
@@ -282,7 +292,7 @@ function PaymentFlow({
               });
             }
           }}
-          disabled={claim.isPending || claimReceipt.isLoading}
+          disabled={claim.isPending || claimReceipt.isLoading || lowGas}
           className="rounded-xl border border-neutral-300 px-5 py-3 font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:opacity-50"
         >
           {claim.isPending || claimReceipt.isLoading
@@ -292,7 +302,7 @@ function PaymentFlow({
       ) : null}
       <button
         onClick={handlePay}
-        disabled={busy || !hasFunds}
+        disabled={busy || !hasFunds || lowGas}
         className="rounded-xl bg-neutral-900 px-5 py-3 font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {label}
