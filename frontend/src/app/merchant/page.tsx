@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { parseEventLogs, stringToHex } from "viem";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
@@ -8,6 +8,7 @@ import { NetworkGuard } from "@/components/NetworkGuard";
 import { TokenBalance } from "@/components/TokenBalance";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
+import { recentInvoiceIds } from "@/lib/invoiceIds";
 import { formatUsd, parseUsd } from "@/lib/format";
 import { listInvoiceIds, saveInvoiceId } from "@/lib/invoiceStorage";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
@@ -16,11 +17,24 @@ export default function MerchantPage() {
   const { address, isConnected } = useAccount();
   // Held here so a freshly created invoice appears in the list straight away; the list used to read
   // localStorage only on its own renders, which creating an invoice never triggered.
-  const [ids, setIds] = useState<`0x${string}`[]>([]);
+  const [stored, setStored] = useState<`0x${string}`[]>([]);
 
   useEffect(() => {
-    setIds(address ? listInvoiceIds(address) : []);
+    setStored(address ? listInvoiceIds(address) : []);
   }, [address]);
+
+  // The chain knows how many requests this account has made, and each id follows from that count, so
+  // the list follows the account to a new device. localStorage covers the moment before that read.
+  const { data: count, refetch: refetchCount } = useReadContract({
+    ...merchantRailsContract,
+    functionName: "merchantNonce",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address, refetchInterval: 5000 },
+  });
+  const ids = useMemo(
+    () => (address && count !== undefined ? recentInvoiceIds(address, count) : stored),
+    [address, count, stored],
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
@@ -38,7 +52,10 @@ export default function MerchantPage() {
           <TokenBalance token={AUSD_ADDRESS} owner={address!} label="Your balance" />
           <CreateInvoiceCard
             merchantAddress={address!}
-            onCreated={() => setIds(listInvoiceIds(address!))}
+            onCreated={() => {
+              setStored(listInvoiceIds(address!));
+              refetchCount();
+            }}
           />
           <InvoiceList ids={ids} />
         </NetworkGuard>
