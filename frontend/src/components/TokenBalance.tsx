@@ -31,7 +31,7 @@ export function TokenBalance({
         });
 
   return (
-    <p className="flex items-baseline justify-between rounded-xl bg-neutral-50 px-4 py-2 text-sm">
+    <p className="flex items-baseline justify-between rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm">
       <span className="text-neutral-500">{label}</span>
       <span className="font-medium tabular-nums text-neutral-900">
         {amount} {tokenLabel(token)}

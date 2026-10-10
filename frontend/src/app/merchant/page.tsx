@@ -50,8 +50,10 @@ export default function MerchantPage() {
         </p>
       ) : (
         <NetworkGuard>
-          <TokenBalance token={AUSD_ADDRESS} owner={address!} label="Your balance" />
-          <SendFunds owner={address!} />
+          <div className="flex flex-col gap-2">
+            <TokenBalance token={AUSD_ADDRESS} owner={address!} label="Your balance" />
+            <SendFunds owner={address!} />
+          </div>
           <CreateInvoiceCard
             merchantAddress={address!}
             onCreated={() => {
@@ -136,7 +138,7 @@ function CreateInvoiceCard({
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value.slice(0, 30))}
-          placeholder="What's it for? e.g. Logo design, NYC client"
+          placeholder="What's it for? e.g. Logo design"
           className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-2 focus:border-neutral-500 focus:outline-none"
         />
         <button
