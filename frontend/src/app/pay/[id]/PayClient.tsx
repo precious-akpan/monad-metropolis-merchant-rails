@@ -145,6 +145,9 @@ function PaymentFlow({
   onSettled: (result: Settlement) => void;
 }) {
   const [step, setStep] = useState<Step>("idle");
+  const { invoice, refetch: refetchInvoice } = useInvoice(id);
+  // Runs the finish once, whichever signal (receipt or invoice status) arrives first.
+  const finished = useRef(false);
   // Set when a pay transaction has had a hash for a while with no receipt seen yet.
   const [slow, setSlow] = useState(false);
   const erc20 = tokenContract(token);
@@ -198,22 +201,36 @@ function PaymentFlow({
     return () => clearTimeout(timer);
   }, [step, pay.data]);
 
+  function finish(txHash: `0x${string}`) {
+    if (finished.current) return;
+    finished.current = true;
+    setStep("done");
+    onSettled({
+      txHash,
+      elapsedMs: paySentAt.current !== null ? Date.now() - paySentAt.current : null,
+    });
+  }
+
+  // Signal one: the receipt for our pay transaction.
   useEffect(() => {
-    if (step === "paying" && payReceipt.data) {
-      setStep("done");
-      onSettled({
-        txHash: payReceipt.data.transactionHash,
-        elapsedMs: paySentAt.current !== null ? Date.now() - paySentAt.current : null,
-      });
-    }
+    if (step === "paying" && payReceipt.data) finish(payReceipt.data.transactionHash);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payReceipt.data]);
+
+  // Signal two: the invoice itself turned Paid after we sent our pay transaction. On a slow or flaky
+  // RPC the receipt can be missed even though the payment landed, so do not wait on it alone. (If
+  // someone else paid the same invoice first, the explorer link shows what happened to ours.)
+  useEffect(() => {
+    if (step === "paying" && pay.data && invoice?.status === InvoiceStatus.Paid) finish(pay.data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, pay.data, invoice?.status]);
 
   const hasFunds = balance !== undefined && balance >= amount;
   const hasAllowance = allowance !== undefined && allowance >= amount;
 
   function handlePay() {
     paySentAt.current = null;
+    finished.current = false;
     setSlow(false);
     onPayStart();
     if (!hasAllowance) {
@@ -294,7 +311,10 @@ function PaymentFlow({
             </a>
             <button
               type="button"
-              onClick={() => payReceipt.refetch()}
+              onClick={() => {
+                payReceipt.refetch();
+                refetchInvoice();
+              }}
               className="underline underline-offset-2"
             >
               Check again
