@@ -13,6 +13,7 @@ import { NetworkGuard } from "@/components/NetworkGuard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { monadTestnet } from "@/lib/chain";
 import { MIN_GAS_BALANCE } from "@/lib/gas";
+import { describeTxError } from "@/lib/txError";
 import {
   MERCHANT_RAILS_ADDRESS,
   ausdFaucetContract,
@@ -339,19 +340,13 @@ function PaymentFlow({
       ) : null}
       {(approve.error || pay.error || claim.error || approveReceipt.error || payReceipt.error || claimReceipt.error) ? (
         <p className="text-sm text-red-600">
-          {errorText(
+          {describeTxError(
             approve.error ?? pay.error ?? claim.error ?? approveReceipt.error ?? payReceipt.error ?? claimReceipt.error,
           )}
         </p>
       ) : null}
     </div>
   );
-}
-
-// viem's full message includes the raw request and call data; its shortMessage is the readable part.
-function errorText(error: Error | null | undefined): string {
-  if (!error) return "";
-  return (error as { shortMessage?: string }).shortMessage ?? error.message;
 }
 
 function SuccessCard({

@@ -12,6 +12,7 @@ import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
 import { recentInvoiceIds } from "@/lib/invoiceIds";
 import { formatUsd, parseUsd } from "@/lib/format";
 import { listInvoiceIds, saveInvoiceId } from "@/lib/invoiceStorage";
+import { describeTxError } from "@/lib/txError";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
 
 export default function MerchantPage() {
@@ -151,7 +152,7 @@ function CreateInvoiceCard({
       </div>
       {formError ? <p className="mt-2 text-sm text-red-600">{formError}</p> : null}
       {writeError ? (
-        <p className="mt-2 text-sm text-red-600">{writeError.message}</p>
+        <p className="mt-2 text-sm text-red-600">{describeTxError(writeError)}</p>
       ) : null}
       {created ? <ReadyLink id={created.id} link={created.link} /> : null}
     </section>

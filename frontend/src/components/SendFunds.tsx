@@ -6,6 +6,7 @@ import { useBalance, useReadContract, useWaitForTransactionReceipt, useWriteCont
 import { monadTestnet } from "@/lib/chain";
 import { AUSD_ADDRESS, STABLECOIN_DECIMALS, tokenContract } from "@/lib/contracts";
 import { MIN_GAS_BALANCE } from "@/lib/gas";
+import { describeTxError } from "@/lib/txError";
 import { checkSend } from "@/lib/sendValidation";
 import { formatUsd } from "@/lib/format";
 
@@ -133,7 +134,7 @@ export function SendFunds({ owner }: { owner: `0x${string}` }) {
               <p>
                 {receipt.data?.status === "reverted"
                   ? "The transfer didn't go through."
-                  : (send.error ?? receipt.error)?.message}
+                  : describeTxError(send.error ?? receipt.error)}
               </p>
               <button type="button" onClick={reset} className={linkClass}>
                 Try again
@@ -150,7 +151,7 @@ export function SendFunds({ owner }: { owner: `0x${string}` }) {
           <p className="text-xs text-amber-800">
             Sends are final. Check every character of the address. Testnet only.
           </p>
-          {send.error ? <p className="text-xs text-red-600">{send.error.message}</p> : null}
+          {send.error ? <p className="text-xs text-red-600">{describeTxError(send.error)}</p> : null}
           <div className="flex items-center gap-4">
             <button
               type="button"
