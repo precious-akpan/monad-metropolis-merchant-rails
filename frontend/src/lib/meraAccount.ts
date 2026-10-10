@@ -4,7 +4,7 @@ import {
   isMeraError,
 } from "@category-labs/mera";
 import type { PasskeyCredentialMetadata } from "@category-labs/mera";
-import { accountFromPrfOutput, type PasskeyAccount } from "./meraDerive";
+import { accountFromPrfOutput, recoveryPhraseFromPrfOutput, type PasskeyAccount } from "./meraDerive";
 
 // Credential metadata only (credential id + transports); it holds no key material.
 const CREDENTIAL_KEY = "merchant-rails:mera-credential";
@@ -81,6 +81,23 @@ export async function signInWithPasskey({
   // Without a pin the browser may have used any discoverable passkey; remember which.
   writeCredential(stored?.credentialId === credentialId ? stored : { credentialId });
   return startSession(prfOutput);
+}
+
+// Shows the words behind the signed-in account. It asks for the passkey again (a fresh touch, not
+// the in-memory session) and refuses if that passkey is a different account's, so the phrase on
+// screen is always the one for the address in the header. Nothing is stored or logged.
+export async function revealRecoveryPhrase(expectedAddress: string): Promise<string> {
+  const { prfOutput } = await getPasskeyPrfOutput({ rpId: rpId(), credential: readCredential() });
+  try {
+    const { account, session } = accountFromPrfOutput(prfOutput);
+    session.end();
+    if (account.address.toLowerCase() !== expectedAddress.toLowerCase()) {
+      throw new Error("That passkey belongs to a different account. Use the one you signed in with.");
+    }
+    return recoveryPhraseFromPrfOutput(prfOutput);
+  } finally {
+    prfOutput.fill(0);
+  }
 }
 
 export function describePasskeyError(error: unknown): string {

@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { RecoveryPhrase } from "@/components/RecoveryPhrase";
 import { truncateAddress } from "@/lib/format";
 import { describePasskeyError, hasStoredPasskey } from "@/lib/meraAccount";
 
@@ -22,7 +23,7 @@ export function ConnectButton() {
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="relative flex items-center gap-3">
         <button
           type="button"
           title={`${address} (click to copy)`}
@@ -41,6 +42,7 @@ export function ConnectButton() {
         >
           {copied ? "Copied" : truncateAddress(address)}
         </button>
+        <RecoveryPhrase address={address} />
         <button
           onClick={() => disconnect()}
           className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
