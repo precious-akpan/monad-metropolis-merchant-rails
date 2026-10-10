@@ -281,6 +281,10 @@ This is a testnet build, and I would not put real money through it as it stands.
   address also depends on Mera's fixed PRF salt, so `@category-labs/mera` stays pinned at 0.2.0.
   A merchant's request list is rebuilt from the contract's public per-merchant counter, so it follows the
   account to a new device.
+- **Sends are final, and a typo loses the money.** "Send AUSD" on the dashboard checks the address (checksum,
+  zero address, own address, this project's contracts) and shows it in full before signing, but nothing can
+  undo a transfer to the wrong address. AUSD is issued by Agora and the issuer may be able to freeze balances;
+  I have not checked what controls it has.
 - **The key lives in browser memory while signed in.** Mera zeroes it on sign-out, but a compromised page or
   dependency could read it in the meantime. Mera is a preview release, and its README describes an internal
   security review only.
@@ -494,6 +498,8 @@ succeeds with no revert. AUSD itself is live at `0xa9012a055bd4e0eDfF8Ce09f96029
   - *Mera passkey onboarding* — the Day 2 work. **Explicitly named in the bounty terms**, so it is mandatory
     for this $10k, not optional.
   - *instant settlement* — already built and demonstrated; the sub-second settle is the core pitch.
+  - *Update 2026-10-10:* the dashboard now also has **Send AUSD** (any address, confirm screen, explorer
+    link), which covers the person-to-person reading of this clause directly, next to the invoice flow.
   - *"send AUSD across borders"* — **the one genuine adherence gap.** Merchant Rails settles invoices; the
     wording reads person-to-person remittance. Closing it by **framing, not new scope**: the demo scenario
     becomes a Nigerian freelancer invoicing a US client — settles in under a second at 0.3% versus 3–5 days
