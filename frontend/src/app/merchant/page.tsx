@@ -138,7 +138,7 @@ function CreateInvoiceCard({
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value.slice(0, 30))}
-          placeholder="What's it for? e.g. Logo design"
+          placeholder="What's it for?"
           className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-2 focus:border-neutral-500 focus:outline-none"
         />
         <button
@@ -195,7 +195,7 @@ function InvoiceList({ ids }: { ids: `0x${string}`[] }) {
   if (ids.length === 0) {
     return (
       <p className="text-sm text-neutral-500">
-        Payment requests you create in this browser will show up here.
+        Payment requests you create will show up here.
       </p>
     );
   }

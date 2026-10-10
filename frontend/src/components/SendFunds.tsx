@@ -170,7 +170,7 @@ export function SendFunds({ owner }: { owner: `0x${string}` }) {
           <input
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            placeholder="Recipient address (0x…)"
+            placeholder="Recipient address"
             spellCheck={false}
             autoComplete="off"
             className="min-w-0 rounded-xl border border-neutral-300 px-4 py-2 font-mono text-sm focus:border-neutral-500 focus:outline-none"
