@@ -128,6 +128,10 @@ SafeERC20, so it works with AUSD without redeploying.
 `MockUSD` (`0x8954CadCE9B84DF214A77C3dCa5977573fb7E340`) is an earlier open-mint test token, testnet only and
 superseded by AUSD; the app still opens invoices made in it.
 
+**Source verified:** `MerchantRails` is verified on Monad's Sourcify (exact match on the runtime bytecode, 2026-10-10;
+[check it](https://sourcify-api-monad.blockvision.org/v2/contract/10143/0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6)),
+so its source can be read against what is deployed.
+
 Deployer / fee recipient: `0x013032166b72D40C43Ccc6B8cf776E4763f58162`. `feeBps` = 30 (0.30%), confirmed by
 calling `feeRecipient()`/`feeBps()` directly against the deployed bytecode, and the deploy tx's on-chain
 `from` field, not just trusted from script output.
