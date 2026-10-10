@@ -1,4 +1,7 @@
-# Merchant Rails — Monad Metropolis Hackathon
+# Merchant Rails — build plan and decision log
+
+> Internal planning notes kept for the record: schedule, rules analysis, bounty reasoning and what changed
+> when. The judge-facing README is [../README.md](../README.md); where the two differ, the README is current.
 
 Non-custodial merchant checkout on Monad: a merchant creates an invoice, a customer pays it in one
 transaction, the stablecoin lands with the merchant in under a second, and the contract never holds funds.
