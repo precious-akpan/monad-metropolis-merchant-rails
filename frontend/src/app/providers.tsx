@@ -17,6 +17,10 @@ const wagmiConfig = createConfig({
     meraPasskey({ mode: "pick" }),
     injected(),
   ],
+  // A passkey session lives in memory only, so a saved connection can never be restored after a
+  // reload. With the default storage, wagmi reported the saved address as connected while it
+  // re-checked, so Pay was clickable, failed with "No active passkey session", then signed out.
+  storage: null,
   // Monad blocks land in well under a second; the 4s default would hide that in the settle timer.
   pollingInterval: 400,
   transports: {
