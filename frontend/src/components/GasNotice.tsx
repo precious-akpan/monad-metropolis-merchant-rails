@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount, useBalance } from "wagmi";
+import { MIN_GAS_BALANCE } from "@/lib/gas";
 
 // Addresses already asked this session, so remounting (page changes) does not ask again.
 const requested = new Set<string>();
@@ -13,8 +14,9 @@ const ARRIVAL_TIMEOUT_MS = 30_000;
 // onto a different account that signs in later.
 type ManualFallback = { address: string; message: string | null };
 
-// A new passkey account holds no MON, so its first transaction would fail. Ask the server to send
-// a little, and say so while it arrives. If that is not possible, show the address to fund by hand.
+// A passkey account starts with no MON and spends it on every transaction, so a payment can fail for
+// want of gas. When the balance is too low to finish one, ask the server to send a little and say so
+// while it arrives. If that is not possible, show the address to fund by hand.
 // Disappears on its own once the balance arrives.
 export function GasNotice() {
   const { address } = useAccount();
@@ -26,8 +28,16 @@ export function GasNotice() {
   const [copied, setCopied] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
-  const needsGas = Boolean(address) && data !== undefined && data.value === 0n;
+  // Below the amount one payment needs, not only at zero: an account used a few times is low but not empty.
+  const needsGas = Boolean(address) && data !== undefined && data.value < MIN_GAS_BALANCE;
   const manual = fallback !== null && fallback.address === address;
+
+  // Once an account is topped up, forget the request so it can be topped up again after it is spent.
+  useEffect(() => {
+    if (address && data !== undefined && data.value >= MIN_GAS_BALANCE) {
+      requested.delete(address.toLowerCase());
+    }
+  }, [address, data]);
 
   useEffect(() => {
     if (!needsGas || !address) return;
@@ -64,7 +74,7 @@ export function GasNotice() {
   if (!manual) {
     return (
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">
-        Setting up your account with a little test MON for network fees…
+        Adding a little test MON for network fees…
       </div>
     );
   }
