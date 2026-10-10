@@ -14,8 +14,14 @@ export type PasskeyAccount = {
   session: Secp256k1SigningSession;
 };
 
+// The 24 words behind an account. This is the same entropy-to-mnemonic step the account derivation
+// below uses, so the phrase imports into any wallet at EVM_ACCOUNT_PATH as the identical address.
+export function recoveryPhraseFromPrfOutput(prfOutput: Uint8Array): string {
+  return entropyToMnemonic(prfOutput, wordlist);
+}
+
 export function accountFromPrfOutput(prfOutput: Uint8Array): PasskeyAccount {
-  const seed = mnemonicToSeedSync(entropyToMnemonic(prfOutput, wordlist));
+  const seed = mnemonicToSeedSync(recoveryPhraseFromPrfOutput(prfOutput));
   const root = HDKey.fromMasterSeed(seed);
   const node = root.derive(EVM_ACCOUNT_PATH);
   try {
