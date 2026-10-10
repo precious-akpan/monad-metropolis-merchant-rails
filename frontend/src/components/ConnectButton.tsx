@@ -1,12 +1,27 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { RecoveryPhrase } from "@/components/RecoveryPhrase";
 import { truncateAddress } from "@/lib/format";
 import { describePasskeyError, hasStoredPasskey } from "@/lib/meraAccount";
 
 const subscribeNever = () => () => {};
+
+// Newer browsers can say up front whether passkeys with the PRF extension work. Only an explicit
+// "no" counts: where the question cannot be asked, the button is left alone and a failed attempt
+// explains itself (describePasskeyError).
+async function browserLacksPrf(): Promise<boolean> {
+  try {
+    const credential = PublicKeyCredential as unknown as {
+      getClientCapabilities?: () => Promise<Record<string, boolean>>;
+    };
+    const capabilities = await credential.getClientCapabilities?.();
+    return capabilities?.["extension:prf"] === false;
+  } catch {
+    return false;
+  }
+}
 
 const linkClass =
   "whitespace-nowrap text-xs text-neutral-500 underline underline-offset-2 hover:text-neutral-800 disabled:opacity-50";
@@ -20,6 +35,11 @@ export function ConnectButton() {
   const returning = useSyncExternalStore(subscribeNever, hasStoredPasskey, () => false);
   const [confirmingCreate, setConfirmingCreate] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [noPrf, setNoPrf] = useState(false);
+
+  useEffect(() => {
+    browserLacksPrf().then(setNoPrf);
+  }, []);
 
   if (isConnected && address) {
     return (
@@ -121,6 +141,13 @@ export function ConnectButton() {
             </button>
           </div>
         </div>
+      ) : null}
+
+      {noPrf && !error ? (
+        <p className="max-w-xs text-left text-xs text-amber-800 sm:text-right">
+          This browser may not support passkey accounts. Try Chrome signed in to your Google account,
+          or Safari on a recent iPhone or Mac.
+        </p>
       ) : null}
 
       {error ? (
