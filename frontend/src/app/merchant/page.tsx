@@ -196,7 +196,7 @@ function InvoiceList({ ids }: { ids: `0x${string}`[] }) {
   if (ids.length === 0) {
     return (
       <p className="text-sm text-neutral-500">
-        Payment requests you create will show up here.
+        No payment requests yet. Enter an amount above and press Create, then copy the link and send it to your client.
       </p>
     );
   }
