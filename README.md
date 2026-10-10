@@ -257,6 +257,35 @@ confirm the transfer on the explorer).
 payment; a settle timer that counted the payer's approval time; a dashboard that did not show a newly created
 invoice; and a favicon file that made every page return an error.
 
+## Before real funds
+
+This is a testnet build, and I would not put real money through it as it stands. What would have to change:
+
+- **Gas sponsorship is a drainable hot wallet.** The funding route sends 0.1 MON from a key held as a server
+  environment variable. Its per-IP limit lives in memory, which serverless instances do not share, so a script
+  can mint fresh addresses and drain the wallet. With real money it needs a paymaster or capped sponsorship, a
+  real rate-limit store, a key held in a KMS with a small float, and monitoring.
+- **Gas costs real money per payer.** On testnet a transaction costs about 0.01 MON (roughly 102 gwei, and
+  Monad reserves the gas limit up front), and a payer's first payment is three transactions: claim test AUSD,
+  approve, pay. AUSD implements EIP-2612 permit (its `DOMAIN_SEPARATOR` and `nonces` respond), so approve and
+  pay could be a single transaction. I have not built that.
+- **There is no account recovery, and accounts are tied to one hostname.** The passkey is the only key and the
+  address is derived from it, and a passkey belongs to the site's hostname. Moving to another domain would
+  strand every account unless WebAuthn related origins are set up, which I have not tested with Mera. Losing
+  the passkey with no backup passkey means losing the funds.
+- **The key lives in browser memory while signed in.** Mera zeroes it on sign-out, but a compromised page or
+  dependency could read it in the meantime. Mera is a preview release, and its README describes an internal
+  security review only.
+- **The contract is unaudited and not upgradeable, and AUSD is not mine.** AUSD is an upgradeable proxy that its
+  issuer controls. I did not find a standard pause or freeze function under common names, which is not proof
+  there is none, so a payment could be blocked by something I cannot see. The contract never holds funds, which
+  limits the damage, but the fee recipient is a single address.
+- **Reliability.** The app talks to one public RPC with response times that spike to around ten seconds, so a
+  payment's confirmation can lag. Real money needs a dedicated RPC provider and monitoring.
+- **Everything is public on-chain:** payments, references and account addresses.
+- **Compliance is unaddressed.** Sanctions screening, KYC and money-transmission rules for cross-border
+  payments. This is not legal advice; it needs a lawyer before any real use.
+
 ## Schedule (re-based 2026-09-22; 21 days to the Oct 13, 11:59 PM ET deadline — not the UTC countdown, when in doubt)
 
 - [x] **Sep 21** — contracts v0 + tests green
