@@ -24,6 +24,9 @@ import { formatUsd, truncateAddress } from "@/lib/format";
 import { InvoiceStatus, useInvoice } from "@/lib/useInvoice";
 
 type Step = "idle" | "approving" | "paying" | "done";
+
+// How long a pay transaction may have a hash and no receipt before we say so and offer a way to check.
+const SLOW_CONFIRM_MS = 20_000;
 type Settlement = { txHash: `0x${string}`; elapsedMs: number | null };
 
 export function PayClient({ id }: { id: `0x${string}` }) {
@@ -142,6 +145,8 @@ function PaymentFlow({
   onSettled: (result: Settlement) => void;
 }) {
   const [step, setStep] = useState<Step>("idle");
+  // Set when a pay transaction has had a hash for a while with no receipt seen yet.
+  const [slow, setSlow] = useState(false);
   const erc20 = tokenContract(token);
   // Clock starts when the pay transaction is broadcast (the wallet hands back a hash), not when the
   // button is clicked, so the settle time excludes however long the payer took to approve popups.
@@ -188,6 +193,12 @@ function PaymentFlow({
   }, [pay.data]);
 
   useEffect(() => {
+    if (step !== "paying" || !pay.data) return;
+    const timer = setTimeout(() => setSlow(true), SLOW_CONFIRM_MS);
+    return () => clearTimeout(timer);
+  }, [step, pay.data]);
+
+  useEffect(() => {
     if (step === "paying" && payReceipt.data) {
       setStep("done");
       onSettled({
@@ -203,6 +214,7 @@ function PaymentFlow({
 
   function handlePay() {
     paySentAt.current = null;
+    setSlow(false);
     onPayStart();
     if (!hasAllowance) {
       setStep("approving");
@@ -217,14 +229,19 @@ function PaymentFlow({
     }
   }
 
-  const busy = step === "approving" || step === "paying";
-  const label =
-    step === "approving"
-      ? approveReceipt.isLoading
+  // If sending the approve or the pay failed, nothing is in flight any more: let the payer try again
+  // instead of leaving a disabled button behind.
+  const failed =
+    (step === "approving" && Boolean(approve.error)) || (step === "paying" && Boolean(pay.error));
+  const busy = (step === "approving" || step === "paying") && !failed;
+  const label = failed
+    ? "Try again"
+    : step === "approving"
+      ? approve.data
         ? "Approving…"
         : "Signing…"
       : step === "paying"
-        ? payReceipt.isLoading
+        ? pay.data
           ? "Paying…"
           : "Signing…"
         : "Pay";
@@ -263,9 +280,33 @@ function PaymentFlow({
       >
         {label}
       </button>
-      {(approve.error || pay.error || claim.error) ? (
+      {step === "paying" && slow && pay.data ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <p>Still confirming. Your payment may already have gone through.</p>
+          <div className="mt-1 flex gap-4 text-xs">
+            <a
+              href={`${monadTestnet.blockExplorers.default.url}/tx/${pay.data}`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2"
+            >
+              See it on the explorer
+            </a>
+            <button
+              type="button"
+              onClick={() => payReceipt.refetch()}
+              className="underline underline-offset-2"
+            >
+              Check again
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {(approve.error || pay.error || claim.error || approveReceipt.error || payReceipt.error || claimReceipt.error) ? (
         <p className="text-sm text-red-600">
-          {errorText(approve.error ?? pay.error ?? claim.error)}
+          {errorText(
+            approve.error ?? pay.error ?? claim.error ?? approveReceipt.error ?? payReceipt.error ?? claimReceipt.error,
+          )}
         </p>
       ) : null}
     </div>
