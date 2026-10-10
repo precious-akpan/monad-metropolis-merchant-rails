@@ -543,8 +543,8 @@ account already created and signed out, and the explorer ready. Do one full dry 
 | 0:00-0:20 | Landing page | I'm a freelancer in Nigeria with a client in New York. Getting paid across borders is slow and expensive. Merchant Rails lets me send one link and be paid in AUSD in under a second. |
 | 0:20-0:40 | Sign in as the merchant with the passkey; click Create on a $5.00 invoice with a reference; copy the link | I sign in with a passkey: no extension, no seed phrase. I create an invoice for five dollars and get a pay link. |
 | 0:40-1:05 | Sign out, open the link, **Create account with passkey** as the client | Now I'm the client. I open the link and make an account with my fingerprint. No extension and no seed phrase. |
-| 1:05-1:25 | Setup message clears on its own; **Get test AUSD** | The app sends a little test MON for fees automatically, and I claim test AUSD. On testnet that comes from Agora's faucet. |
-| 1:25-1:50 | Pay; read the settle time off the success screen | I pay. There is nothing to approve in a wallet. *(Read the measured seconds off the screen.)* |
+| 1:05-1:25 | Setup message clears on its own; **Get test AUSD**; point at the **Your balance** line | The app sends a little test MON for fees automatically, and I claim test AUSD from Agora's faucet. My balance goes from zero to ten thousand AUSD. |
+| 1:25-1:50 | Pay; read the settle time off the success screen; point at the balance dropping | I pay. There is nothing to approve in a wallet, and my balance drops by five dollars. *(Read the measured seconds off the screen.)* |
 | 1:50-2:20 | Click **See it settle on-chain**; point at the AUSD transfer | A real transaction on Monad testnet. The merchant received 4.985 AUSD: five dollars minus the 0.30% protocol fee. The contract never holds the funds. |
 | 2:20-2:40 | Optional: the installed app on a phone, opening standalone | It installs on a phone from the browser, as an app. |
 | 2:40-3:00 | Landing page | Merchant Rails: get paid by clients anywhere, in seconds. Open source on GitHub. |
@@ -554,6 +554,25 @@ account already created and signed out, and the explorer ready. Do one full dry 
 - No card or bank figures. The screen makes no numeric claim about them and neither should you.
 - The hard cap is **3:00** (Rules §4.1, §9.4). If the take runs over, cut the optional phone clip first.
 - Re-check the finished file frame by frame for anything private (address-bar suggestions, other tabs, notifications).
+
+**Agora needs its own view of this.** Its video question asks for passkey onboarding, an AUSD balance, and a
+completed send/receive settled instantly, in **up to 2 minutes**. The 0:20-2:20 span above covers all three
+(sign in with a passkey, the balance line, the payment). If the final demo is over 2:00, cut that span into a
+separate unlisted take for the Agora field.
+
+### Pitch video script v1 (hard cap 2:00, aim for ~1:50)
+
+Answers the form's prompt: introduce the team, the problem you solve, and why you are building it. Face on
+camera is optional; the form does not require it. Same setup rules as the demo. Say only what is true and
+shown; no statistics.
+
+| Time | On screen | Narration |
+|---|---|---|
+| 0:00-0:15 | Landing page | I'm Precious Akpan, a software engineer in Nigeria, and I built Merchant Rails on my own. |
+| 0:15-0:45 | Landing page | If you earn from clients in another country, getting paid is slow, and fees come out on the way. You send an invoice and then you wait. |
+| 0:45-1:15 | The pay page and success screen | Merchant Rails turns that into one link. The client opens it, signs in with a passkey, and pays in AUSD. It settles on Monad in under a second, straight from the client to you. The contract never holds the money. |
+| 1:15-1:40 | The sign-in and balance screens | I used Mera passkey accounts so nobody needs a wallet extension or a seed phrase, and AUSD so the money is a stable dollar. You can also back up your account as 24 words and send AUSD on to any address. |
+| 1:40-2:00 | Landing page, then the GitHub page | It's a testnet build and open source, with a plain list of what must change before real money. Merchant Rails: get paid by clients anywhere, in seconds. |
 
 ## Open decisions
 
