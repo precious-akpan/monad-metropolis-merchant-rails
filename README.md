@@ -269,10 +269,18 @@ This is a testnet build, and I would not put real money through it as it stands.
   Monad reserves the gas limit up front), and a payer's first payment is three transactions: claim test AUSD,
   approve, pay. AUSD implements EIP-2612 permit (its `DOMAIN_SEPARATOR` and `nonces` respond), so approve and
   pay could be a single transaction. I have not built that.
-- **There is no account recovery, and accounts are tied to one hostname.** The passkey is the only key and the
-  address is derived from it, and a passkey belongs to the site's hostname. Moving to another domain would
-  strand every account unless WebAuthn related origins are set up, which I have not tested with Mera. Losing
-  the passkey with no backup passkey means losing the funds.
+- **Recovery is limited, and accounts are tied to one hostname.** The address is derived from the passkey's PRF
+  output, so the same passkey always gives the same account. If the passkey syncs (Google Password Manager,
+  iCloud Keychain), signing in on another device with "I already have an account" should reach the same
+  account; I have only confirmed same-device sign-in, not that cross-device path. A second passkey is *not* a
+  backup: a different passkey is a different account. "Back up account" shows the 24-word phrase behind the
+  account after a fresh passkey touch, so it can be restored in any wallet at `m/44'/60'/0'/0/0`. The phrase
+  is a new leak surface (anyone who sees it controls the account), it is never stored, and it hides after a
+  minute. There is no guardian or social recovery, and a passkey belongs to the site's hostname, so moving
+  domains strands accounts unless the phrase is used (WebAuthn related origins are untested with Mera). The
+  address also depends on Mera's fixed PRF salt, so `@category-labs/mera` stays pinned at 0.2.0.
+  A merchant's request list is rebuilt from the contract's public per-merchant counter, so it follows the
+  account to a new device.
 - **The key lives in browser memory while signed in.** Mera zeroes it on sign-out, but a compromised page or
   dependency could read it in the meantime. Mera is a preview release, and its README describes an internal
   security review only.
