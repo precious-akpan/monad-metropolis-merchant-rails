@@ -6,6 +6,7 @@ import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteCont
 import { ConnectButton } from "@/components/ConnectButton";
 import { NetworkGuard } from "@/components/NetworkGuard";
 import { TokenBalance } from "@/components/TokenBalance";
+import { SendFunds } from "@/components/SendFunds";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AUSD_ADDRESS, merchantRailsContract } from "@/lib/contracts";
 import { recentInvoiceIds } from "@/lib/invoiceIds";
@@ -50,6 +51,7 @@ export default function MerchantPage() {
       ) : (
         <NetworkGuard>
           <TokenBalance token={AUSD_ADDRESS} owner={address!} label="Your balance" />
+          <SendFunds owner={address!} />
           <CreateInvoiceCard
             merchantAddress={address!}
             onCreated={() => {
