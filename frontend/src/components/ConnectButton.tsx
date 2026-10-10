@@ -91,9 +91,15 @@ export function ConnectButton() {
           </button>
         </div>
       ) : (
-        <button onClick={() => start(pick)} disabled={!pick || isPending} className={linkClass}>
-          I already have an account
-        </button>
+        <>
+          <button onClick={() => start(pick)} disabled={!pick || isPending} className={linkClass}>
+            I already have an account
+          </button>
+          <p className="max-w-xs text-right text-xs text-neutral-400">
+            Used Merchant Rails on another device? Choose this and pick your passkey. Creating an
+            account again makes a new, empty one.
+          </p>
+        </>
       )}
 
       {confirmingCreate ? (
