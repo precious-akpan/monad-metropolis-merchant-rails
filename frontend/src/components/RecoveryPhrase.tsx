@@ -49,7 +49,7 @@ export function RecoveryPhrase({ address }: { address: `0x${string}` }) {
   }
 
   return (
-    <div className="absolute right-0 top-full z-10 mt-2 w-80 rounded-2xl border border-neutral-200 bg-white p-4 text-left shadow-lg">
+    <div className="absolute left-0 top-full z-10 mt-2 w-[min(20rem,calc(100vw-3rem))] rounded-2xl sm:left-auto sm:right-0 border border-neutral-200 bg-white p-4 text-left shadow-lg">
       <p className="text-sm font-medium text-neutral-900">Back up your account</p>
       <p className="mt-1 text-xs text-neutral-600">
         Your account lives in your passkey, which Google or Apple sync across your devices. These 24

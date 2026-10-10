@@ -23,7 +23,7 @@ export function ConnectButton() {
 
   if (isConnected && address) {
     return (
-      <div className="relative flex items-center gap-3">
+      <div className="relative flex flex-wrap items-center gap-x-3 gap-y-1">
         <button
           type="button"
           title={`${address} (click to copy)`}
@@ -64,11 +64,11 @@ export function ConnectButton() {
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-start gap-2 sm:items-end">
       <button
         onClick={() => start(returning ? signIn : create)}
         disabled={!(returning ? signIn : create) || isPending}
-        className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="whitespace-nowrap rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending
           ? "Waiting for your passkey…"
@@ -95,7 +95,7 @@ export function ConnectButton() {
           <button onClick={() => start(pick)} disabled={!pick || isPending} className={linkClass}>
             I already have an account
           </button>
-          <p className="max-w-xs text-right text-xs text-neutral-400">
+          <p className="max-w-xs text-left text-xs text-neutral-400 sm:text-right">
             Used Merchant Rails on another device? Choose this and pick your passkey. Creating an
             account again makes a new, empty one.
           </p>
@@ -103,12 +103,12 @@ export function ConnectButton() {
       )}
 
       {confirmingCreate ? (
-        <div className="max-w-xs rounded-xl border border-amber-200 bg-amber-50 p-3 text-right">
+        <div className="max-w-xs rounded-xl border border-amber-200 bg-amber-50 p-3 text-left sm:text-right">
           <p className="mb-2 text-xs text-amber-900">
             You already have an account on this device. A new passkey makes a different, empty
             account.
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="flex gap-3 sm:justify-end">
             <button onClick={() => setConfirmingCreate(false)} className={linkClass}>
               Cancel
             </button>
@@ -124,7 +124,7 @@ export function ConnectButton() {
       ) : null}
 
       {error ? (
-        <p className="max-w-xs text-right text-xs text-red-600">
+        <p className="max-w-xs text-left text-xs text-red-600 sm:text-right">
           {describePasskeyError(error)}
         </p>
       ) : null}
