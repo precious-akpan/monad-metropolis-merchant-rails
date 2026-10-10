@@ -309,7 +309,7 @@ function PaymentFlow({
       </button>
       {step === "paying" && slow && pay.data ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          <p>Still confirming. Your payment may already have gone through.</p>
+          <p>Still confirming. It may have gone through, or the network may not have accepted it.</p>
           <div className="mt-1 flex gap-4 text-xs">
             <a
               href={`${monadTestnet.blockExplorers.default.url}/tx/${pay.data}`}
@@ -328,6 +328,9 @@ function PaymentFlow({
               className="underline underline-offset-2"
             >
               Check again
+            </button>
+            <button type="button" onClick={handlePay} className="underline underline-offset-2">
+              Send again
             </button>
           </div>
         </div>
