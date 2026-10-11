@@ -180,6 +180,10 @@ and can run dry or be drained by a script. A real on-ramp for payers who hold no
 request (`cancelInvoice`), but the app has no cancel button yet. The
 public RPC is slow and spiky, so a first load can take several seconds.
 
+**What is and is not automated.** The contract has 26 Foundry tests. The app has 46 Vitest tests of its pure logic
+(no browser, no network). The screens, the payment sequence and the passkey prompts have no automated tests: they
+need a real authenticator and a live chain, so they were exercised by hand.
+
 **Tested end to end** on production with real passkeys on Monad testnet: create an account, receive the
 automatic MON top-up, claim test AUSD, pay an AUSD invoice and see **"Settled in 0.4s"** with the transfer on
 the explorer; sign back in and get the same address; back up the account; send AUSD; and see a merchant's
@@ -196,7 +200,8 @@ pnpm dev            # http://localhost:3000
 
 Passkey accounts made on `localhost` are separate from production ones. The gas top-up route needs a funded,
 testnet-only key in `frontend/.env.local` (`SPONSOR_PRIVATE_KEY=0x...`); without it the app shows the address to
-fund by hand. Contracts: `cd contracts && forge build && forge test`.
+fund by hand. Tests: `pnpm test` (46 tests of the app's pure logic: account derivation and recovery phrase, Send checks,
+invoice ids, amounts) and `cd contracts && forge build && forge test` (26 contract tests).
 
 ## AI tool disclosure
 
