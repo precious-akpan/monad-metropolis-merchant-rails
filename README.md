@@ -9,7 +9,7 @@ Cross-Border Payments and Mera-Powered UX bounties.
 
 | | |
 |---|---|
-| **Live app** | https://monad-metropolis-merchant-rails.vercel.app/ (Monad testnet; installable on a phone) |
+| **Live app** | https://merchant-rails.vercel.app/ (Monad testnet; installable on a phone) |
 | **Source** | https://github.com/precious-akpan/monad-metropolis-merchant-rails (MIT) |
 | **Settlement** | Measured **0.3 to 0.9 s** from broadcast to confirmed receipt on Monad testnet |
 | **Contract** | `MerchantRails` at `0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6` ([explorer](https://testnet.monadvision.com/address/0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6)) |
