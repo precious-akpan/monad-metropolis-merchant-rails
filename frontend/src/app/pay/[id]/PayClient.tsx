@@ -50,7 +50,7 @@ export function PayClient({ id }: { id: `0x${string}` }) {
       </header>
 
       {settlement ? (
-        <SuccessCard txHash={settlement.txHash} elapsedMs={settlement.elapsedMs} />
+        <SuccessCard txHash={settlement.txHash} elapsedMs={settlement.elapsedMs} token={invoice?.token} />
       ) : isLoading ? (
         <p className="text-neutral-500">Loading…</p>
       ) : !exists || !invoice ? (
@@ -352,10 +352,13 @@ function PaymentFlow({
 function SuccessCard({
   txHash,
   elapsedMs,
+  token,
 }: {
   txHash: `0x${string}`;
   elapsedMs: number | null;
+  token: `0x${string}` | undefined;
 }) {
+  const { address } = useAccount();
   const seconds = elapsedMs !== null ? (elapsedMs / 1000).toFixed(1) : null;
   const explorerUrl = `${monadTestnet.blockExplorers.default.url}/tx/${txHash}`;
 
@@ -368,6 +371,11 @@ function SuccessCard({
       <p className="text-sm text-green-700">
         Card and bank payments across borders can take days to settle.
       </p>
+      {address && token ? (
+        <div className="w-full">
+          <TokenBalance token={token} owner={address} label="Your balance now" />
+        </div>
+      ) : null}
       <a
         href={explorerUrl}
         target="_blank"
