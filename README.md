@@ -176,7 +176,8 @@ same address; a different site (or `localhost`) is a different account.
 **Limits, stated plainly.** This is a testnet product and the contract is unaudited. A PRF-capable authenticator
 is required (Chrome signed in to Google, Safari on a recent iPhone or Mac, 1Password, and others); other
 browsers see a clear message and no fallback, by design. The sponsor wallet holds only faucet-funded testnet MON
-and can run dry or be drained by a script. A real on-ramp for payers who hold no stablecoin is not built. The
+and can run dry or be drained by a script. A real on-ramp for payers who hold no stablecoin is not built. The contract lets a merchant cancel an unpaid
+request (`cancelInvoice`), but the app has no cancel button yet. The
 public RPC is slow and spiky, so a first load can take several seconds.
 
 **Tested end to end** on production with real passkeys on Monad testnet: create an account, receive the
