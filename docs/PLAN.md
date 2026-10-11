@@ -547,7 +547,7 @@ account already created and signed out, and the explorer ready. Do one full dry 
 | 0:20-0:40 | Sign in as the merchant with the passkey; click Create on a $5.00 invoice with a reference; copy the link | I sign in with a passkey: no extension, no seed phrase. I create an invoice for five dollars and get a pay link. |
 | 0:40-1:05 | Sign out, open the link, **Create account with passkey** as the client | Now I'm the client. I open the link and make an account with my fingerprint. No extension and no seed phrase. |
 | 1:05-1:25 | Setup message clears on its own; **Get test AUSD**; point at the **Your balance** line | The app sends a little test MON for fees automatically, and I claim test AUSD from Agora's faucet. My balance goes from zero to ten thousand AUSD. |
-| 1:25-1:50 | Pay; read the settle time off the success screen; point at the balance dropping | I pay. There is nothing to approve in a wallet, and my balance drops by five dollars. *(Read the measured seconds off the screen.)* |
+| 1:25-1:50 | Pay; read the settle time off the success screen; point at **Your balance now** | I pay. There is nothing to approve in a wallet, and my balance drops by five dollars. *(Read the measured seconds off the screen.)* |
 | 1:50-2:20 | Click **View receipt**; point at the AUSD transfer | A real transaction on Monad testnet. The merchant received 4.985 AUSD: five dollars minus the 0.30% protocol fee. The contract never holds the funds. |
 | 2:20-2:40 | Optional: the installed app on a phone, opening standalone | It installs on a phone from the browser, as an app. |
 | 2:40-3:00 | Landing page | Merchant Rails: get paid by clients anywhere, in seconds. Open source on GitHub. |
