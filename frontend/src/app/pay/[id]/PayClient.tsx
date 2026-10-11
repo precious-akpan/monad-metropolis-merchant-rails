@@ -374,7 +374,7 @@ function SuccessCard({
         rel="noreferrer"
         className="mt-2 text-sm font-medium text-green-800 underline underline-offset-2"
       >
-        See it settle on-chain →
+        View receipt →
       </a>
     </div>
   );
