@@ -555,7 +555,7 @@ instant settlement, and the merchant receiving the money.** Shot on the **live a
 |---|---|---|
 | 0:00-0:15 | Landing page | I'm a freelancer in Nigeria with a client in New York. Merchant Rails lets me send one link and be paid in AUSD in about a second. |
 | 0:15-0:35 | **Window A:** Sign in with passkey; point at the 0.00 AUSD balance; create a $10 request with a short note; Copy link | I sign in with a passkey: no extension, no seed phrase. My balance is zero. I create a ten dollar request and copy the link. |
-| 0:35-1:05 | **Window B:** open the link; **Create account with passkey**; the "Adding a little test MON" message clears on its own | Now I'm the client. I open the link and make an account with my fingerprint. The app tops up a little test MON for fees by itself. |
+| 0:35-1:05 | **Window B:** open the link; **Create account with passkey**; the "Setting up your account…" message clears on its own | Now I'm the client. I open the link and make an account with my fingerprint. The app sets the account up by itself. |
 | 1:05-1:25 | **Get test AUSD**; point at **Your balance** going from zero to about ten thousand | I claim test AUSD from Agora's faucet, and my balance shows it. |
 | 1:25-1:50 | **Pay**; read the settle time off the success screen; point at **Your balance now** | I pay. There's nothing to approve in a wallet. *(Read the measured seconds off the screen.)* My balance drops by ten dollars. |
 | 1:50-2:05 | Click **View receipt**; point at the AUSD transfer | That's the transaction on Monad testnet. The contract never holds the funds. |

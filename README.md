@@ -20,8 +20,8 @@ Cross-Border Payments and Mera-Powered UX bounties.
 No login details are needed; accounts are passkeys. Use Chrome, Edge or Safari on a device with a platform
 passkey (Google Password Manager, iCloud Keychain, Windows Hello). Passkeys are tied to the site's domain.
 
-1. Open `/merchant` and press **Create account with passkey**. A few seconds later the account is topped up with
-   test MON for network fees automatically.
+1. Open `/merchant` and press **Create account with passkey**. A few seconds later "Setting up your account…" appears and
+   clears on its own: the account is topped up with test MON for fees automatically.
 2. Enter an amount and a note, press **Create**, then **Copy link**. That is the pay link.
 3. Open the link in a second browser profile or a private window and press **Create account with passkey** as
    the client. Wait for the top-up.
