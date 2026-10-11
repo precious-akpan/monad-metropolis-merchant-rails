@@ -533,35 +533,46 @@ whole plan — it is the one failure mode with no workaround, and it now gates $
 - [ ] Nothing in the repo we wouldn't want fully public (review is non-confidential — no keys, no trade secrets)
 - [ ] Submitted through the Hackathon website with a day or more of margin before Oct 13, 11:59 PM ET
 
-### Demo script v2: the final technical demo (hard cap 3:00, aim for ~2:40)
+### Demo script v3: the final technical demo (hard cap 3:00, aim for ~2:50)
 
-Covers all four scored bounty terms on camera: **passkey onboarding with no extension, AUSD, the cross-border
-story, instant settlement** (the installable app is a short optional clip). Shot on the **production domain**,
-because a passkey made on `localhost` does not exist there. **Setup:** one Chrome profile with no other tabs
-open (a new tab can show address-bar history; check every take frame by frame), Do Not Disturb on, a merchant
-account already created and signed out, and the explorer ready. Do one full dry run first.
+Covers the scored bounty terms on camera: **passkey onboarding with no extension, AUSD, the cross-border story,
+instant settlement, and the merchant receiving the money.** Shot on the **live address**
+(https://merchant-rails.vercel.app/), because a passkey is tied to the site's domain.
+
+**Setup (two windows, no sign-out dance):**
+- **Window A, the merchant:** a normal Chrome window in a clean profile with no extensions. Create the merchant
+  account **before recording** and leave it signed out. It must **not** have claimed any AUSD, so its balance
+  reads 0.00 and visibly rises when it is paid.
+- **Window B, the client:** a Chrome **incognito** window (no extensions, no history). The client account is
+  created **on camera**, so it shows the passkey onboarding.
+- Browser zoom 110-125% so text is readable at 720p. Hide the bookmarks bar. One tab per window. Do Not Disturb
+  on, phone silent. Do not open "Back up account" on any take (it shows the 24 words).
+- Use a **$10** request: the merchant receives 9.97 AUSD (ten dollars minus the 0.30% fee, 0.03), which reads
+  cleanly on screen. A $5 request leaves 4.985, which the screen rounds.
+- Do one full dry run first, and record several takes: the settle time varies (0.3 to 0.9 s so far).
 
 | Time | On screen | Narration (say only what the screen shows) |
 |---|---|---|
-| 0:00-0:20 | Landing page | I'm a freelancer in Nigeria with a client in New York. Getting paid across borders is slow and expensive. Merchant Rails lets me send one link and be paid in AUSD in under a second. |
-| 0:20-0:40 | Sign in as the merchant with the passkey; click Create on a $5.00 invoice with a reference; copy the link | I sign in with a passkey: no extension, no seed phrase. I create an invoice for five dollars and get a pay link. |
-| 0:40-1:05 | Sign out, open the link, **Create account with passkey** as the client | Now I'm the client. I open the link and make an account with my fingerprint. No extension and no seed phrase. |
-| 1:05-1:25 | Setup message clears on its own; **Get test AUSD**; point at the **Your balance** line | The app sends a little test MON for fees automatically, and I claim test AUSD from Agora's faucet. My balance goes from zero to ten thousand AUSD. |
-| 1:25-1:50 | Pay; read the settle time off the success screen; point at **Your balance now** | I pay. There is nothing to approve in a wallet, and my balance drops by five dollars. *(Read the measured seconds off the screen.)* |
-| 1:50-2:20 | Click **View receipt**; point at the AUSD transfer | A real transaction on Monad testnet. The merchant received 4.985 AUSD: five dollars minus the 0.30% protocol fee. The contract never holds the funds. |
-| 2:20-2:40 | Optional: the installed app on a phone, opening standalone | It installs on a phone from the browser, as an app. |
-| 2:40-3:00 | Landing page | Merchant Rails: get paid by clients anywhere, in seconds. Open source on GitHub. |
+| 0:00-0:15 | Landing page | I'm a freelancer in Nigeria with a client in New York. Merchant Rails lets me send one link and be paid in AUSD in about a second. |
+| 0:15-0:35 | **Window A:** Sign in with passkey; point at the 0.00 AUSD balance; create a $10 request with a short note; Copy link | I sign in with a passkey: no extension, no seed phrase. My balance is zero. I create a ten dollar request and copy the link. |
+| 0:35-1:05 | **Window B:** open the link; **Create account with passkey**; the "Adding a little test MON" message clears on its own | Now I'm the client. I open the link and make an account with my fingerprint. The app tops up a little test MON for fees by itself. |
+| 1:05-1:25 | **Get test AUSD**; point at **Your balance** going from zero to about ten thousand | I claim test AUSD from Agora's faucet, and my balance shows it. |
+| 1:25-1:50 | **Pay**; read the settle time off the success screen; point at **Your balance now** | I pay. There's nothing to approve in a wallet. *(Read the measured seconds off the screen.)* My balance drops by ten dollars. |
+| 1:50-2:05 | Click **View receipt**; point at the AUSD transfer | That's the transaction on Monad testnet. The contract never holds the funds. |
+| 2:05-2:35 | **Window A:** the request flips to **Paid** on its own; point at the balance now reading 9.97 AUSD | Back on the merchant side the request is paid, and my balance is 9.97 AUSD: ten dollars minus the 0.30% fee. |
+| 2:35-2:50 | Landing page, then the GitHub page | Merchant Rails: get paid by clients anywhere, in seconds. It's open source. |
 
 **Rules for every take:**
 - Say only what the screen shows. Read the settle time off the screen; do not quote a number that was not measured.
 - No card or bank figures. The screen makes no numeric claim about them and neither should you.
-- The hard cap is **3:00** (Rules §4.1, §9.4). If the take runs over, cut the optional phone clip first.
+- The hard cap is **3:00** (Rules §4.1, §9.4).
 - Re-check the finished file frame by frame for anything private (address-bar suggestions, other tabs, notifications).
+- Do not speed the video up or edit the on-screen numbers. If a take is slow, record another.
 
-**Agora needs its own view of this.** Its video question asks for passkey onboarding, an AUSD balance, and a
-completed send/receive settled instantly, in **up to 2 minutes**. The 0:20-2:20 span above covers all three
-(sign in with a passkey, the balance line, the payment). If the final demo is over 2:00, cut that span into a
-separate unlisted take for the Agora field.
+**Agora take (up to 2 minutes, a separate recording).** Its video question asks for passkey onboarding, an AUSD
+balance, and a completed send/receive settled instantly. Record the same flow again, brisker, and skip the
+landing page, the receipt click and the outro: 0:15-1:25 as above, the payment, then the merchant window showing
+Paid and the balance (about 1:50 in all). Record it as its own take; do not try to cut it from the longer one.
 
 ### Pitch video script v1 (hard cap 2:00, aim for ~1:50)
 
