@@ -208,7 +208,7 @@ test token still open.
 - `src/app/pay/[id]/PayClient.tsx`: the checkout. It reads the invoice on-chain, shows a plain already-paid
   state, offers "Get test AUSD (testnet only)", then one Pay button that sequences `approve` and `pay`. The
   success screen shows the measured settle time (the clock starts when the pay transaction is broadcast, so it
-  excludes however long approval took) and a **"See it settle on-chain"** link to the transaction on MonadVision.
+  excludes however long approval took) and a **"View receipt"** link (formerly "See it settle on-chain") to the transaction on MonadVision.
   The proof stays visible on purpose: Monad integration shown, not just claimed.
 - `src/app/manifest.ts` and the icons: the app is installable ("Add to Home Screen") and opens standalone.
   There is no service worker; install prompts do not need one and a worker risks caching wallet and RPC traffic.
@@ -548,7 +548,7 @@ account already created and signed out, and the explorer ready. Do one full dry 
 | 0:40-1:05 | Sign out, open the link, **Create account with passkey** as the client | Now I'm the client. I open the link and make an account with my fingerprint. No extension and no seed phrase. |
 | 1:05-1:25 | Setup message clears on its own; **Get test AUSD**; point at the **Your balance** line | The app sends a little test MON for fees automatically, and I claim test AUSD from Agora's faucet. My balance goes from zero to ten thousand AUSD. |
 | 1:25-1:50 | Pay; read the settle time off the success screen; point at the balance dropping | I pay. There is nothing to approve in a wallet, and my balance drops by five dollars. *(Read the measured seconds off the screen.)* |
-| 1:50-2:20 | Click **See it settle on-chain**; point at the AUSD transfer | A real transaction on Monad testnet. The merchant received 4.985 AUSD: five dollars minus the 0.30% protocol fee. The contract never holds the funds. |
+| 1:50-2:20 | Click **View receipt**; point at the AUSD transfer | A real transaction on Monad testnet. The merchant received 4.985 AUSD: five dollars minus the 0.30% protocol fee. The contract never holds the funds. |
 | 2:20-2:40 | Optional: the installed app on a phone, opening standalone | It installs on a phone from the browser, as an app. |
 | 2:40-3:00 | Landing page | Merchant Rails: get paid by clients anywhere, in seconds. Open source on GitHub. |
 
