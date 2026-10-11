@@ -19,11 +19,10 @@ export default function MerchantPage() {
   const { address, isConnected } = useAccount();
   // Held here so a freshly created invoice appears in the list straight away; the list used to read
   // localStorage only on its own renders, which creating an invoice never triggered.
-  const [stored, setStored] = useState<`0x${string}`[]>([]);
-
-  useEffect(() => {
-    setStored(address ? listInvoiceIds(address) : []);
-  }, [address]);
+  // Bumped when a request is created, so the memo below re-reads what was just saved.
+  const [savedVersion, setSavedVersion] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stored = useMemo(() => (address ? listInvoiceIds(address) : []), [address, savedVersion]);
 
   // The chain knows how many requests this account has made, and each id follows from that count, so
   // the list follows the account to a new device. localStorage covers the moment before that read.
@@ -58,7 +57,7 @@ export default function MerchantPage() {
           <CreateInvoiceCard
             merchantAddress={address!}
             onCreated={() => {
-              setStored(listInvoiceIds(address!));
+              setSavedVersion((v) => v + 1);
               refetchCount();
             }}
           />
@@ -79,32 +78,35 @@ function CreateInvoiceCard({
   const [amountInput, setAmountInput] = useState("");
   const [reference, setReference] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [created, setCreated] = useState<{ id: `0x${string}`; link: string } | null>(null);
 
-  const { writeContract, data: txHash, isPending: isSigning, error: writeError } = useWriteContract();
+  const { writeContract, reset, data: txHash, isPending: isSigning, error: writeError } = useWriteContract();
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
 
   // Once the tx confirms, pull the real invoice id out of the InvoiceCreated event -- reading it
   // off the receipt is more honest than recomputing it client-side.
-  useEffect(() => {
-    if (!receipt) return;
+  const createdId = useMemo(() => {
+    if (!receipt) return null;
     const [event] = parseEventLogs({
       abi: merchantRailsContract.abi,
       eventName: "InvoiceCreated",
       logs: receipt.logs,
     });
-    if (event) {
-      const id = event.args.id;
-      saveInvoiceId(merchantAddress, id);
-      setCreated({ id, link: `${window.location.origin}/pay/${id}` });
-      onCreated();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return event?.args.id ?? null;
   }, [receipt]);
+  const created = createdId
+    ? { id: createdId, link: `${window.location.origin}/pay/${createdId}` }
+    : null;
+
+  useEffect(() => {
+    if (!createdId) return;
+    saveInvoiceId(merchantAddress, createdId);
+    onCreated();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdId]);
 
   function handleCreate() {
     setFormError(null);
-    setCreated(null);
+    reset();
     let amount: bigint;
     try {
       amount = parseUsd(amountInput);
