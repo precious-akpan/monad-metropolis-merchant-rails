@@ -148,7 +148,7 @@ function PaymentFlow({
   onPayStart: () => void;
   onSettled: (result: Settlement) => void;
 }) {
-  const [step, setStep] = useState<Step>("idle");
+  const [stage, setStage] = useState<Step>("idle");
   const { invoice, refetch: refetchInvoice } = useInvoice(id);
   // Runs the finish once, whichever signal (receipt or invoice status) arrives first.
   const finished = useRef(false);
@@ -187,15 +187,17 @@ function PaymentFlow({
 
   const approve = useWriteContract();
   const approveReceipt = useWaitForTransactionReceipt({ hash: approve.data });
+  // Once the approval confirms the flow is on to the payment. Derived rather than set from an effect,
+  // so it cannot lag a render behind the receipt.
+  const step: Step = stage === "approving" && approveReceipt.data ? "paying" : stage;
 
   const pay = useWriteContract();
   const payReceipt = useWaitForTransactionReceipt({ hash: pay.data });
 
   // Sequence: once approve confirms, move on to pay automatically.
   useEffect(() => {
-    if (step === "approving" && approveReceipt.data) {
+    if (stage === "approving" && approveReceipt.data) {
       refetchAllowance();
-      setStep("paying");
       pay.writeContract({ ...merchantRailsContract, functionName: "pay", args: [id] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -214,7 +216,7 @@ function PaymentFlow({
   function finish(txHash: `0x${string}`) {
     if (finished.current) return;
     finished.current = true;
-    setStep("done");
+    setStage("done");
     onSettled({
       txHash,
       elapsedMs: paySentAt.current !== null ? Date.now() - paySentAt.current : null,
@@ -244,14 +246,14 @@ function PaymentFlow({
     setSlow(false);
     onPayStart();
     if (!hasAllowance) {
-      setStep("approving");
+      setStage("approving");
       approve.writeContract({
         ...erc20,
         functionName: "approve",
         args: [MERCHANT_RAILS_ADDRESS, amount],
       });
     } else {
-      setStep("paying");
+      setStage("paying");
       pay.writeContract({ ...merchantRailsContract, functionName: "pay", args: [id] });
     }
   }
