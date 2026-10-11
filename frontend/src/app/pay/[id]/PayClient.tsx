@@ -266,7 +266,7 @@ function PaymentFlow({
   const label = failed
     ? "Try again"
     : lowGas && !busy
-      ? "Waiting for network fees…"
+      ? "Setting up your account…"
       : step === "approving"
       ? approve.data
         ? "Approving…"

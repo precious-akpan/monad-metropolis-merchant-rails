@@ -159,7 +159,7 @@ export function SendFunds({ owner }: { owner: `0x${string}` }) {
               disabled={lowGas}
               className="rounded-xl bg-neutral-900 px-5 py-2 font-medium text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {lowGas ? "Waiting for network fees…" : "Confirm and send"}
+              {lowGas ? "Setting up your account…" : "Confirm and send"}
             </button>
             <button type="button" onClick={() => setConfirming(false)} className={linkClass}>
               Back

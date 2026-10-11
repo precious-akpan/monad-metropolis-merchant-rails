@@ -74,7 +74,7 @@ export function GasNotice() {
   if (!manual) {
     return (
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">
-        Adding a little test MON for network fees…
+        Setting up your account…
       </div>
     );
   }
@@ -82,7 +82,7 @@ export function GasNotice() {
   return (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
       <p className="mb-2 text-sm text-amber-900">
-        This account needs a little test MON to cover network fees before it can send a payment.
+        This account needs a small top-up before it can make a payment. Send it a little test MON, the network&apos;s fee token.
         {fallback?.message ? ` ${fallback.message}` : ""}
       </p>
       <div className="flex items-center gap-2">
