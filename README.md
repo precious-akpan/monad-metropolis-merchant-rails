@@ -220,12 +220,13 @@ Specifically:
 
 **What I did and did not review by hand.** I reviewed the contract line by line. I did not review the
 frontend that way: my review there was at the level of running it, type-checking, and exercising the real
-flows, since none of it takes custody of funds the way the contract would. What backs it: an offline script (fixed fake PRF
-output) showing the derived address is deterministic, matches viem's independent derivation, and signs
-correctly; `curl` checks of the funding route's validation and no-key paths; a local fake RPC that drops
-replies to test the transport; type-check and lint on the new files; and my own end-to-end runs with a
-real passkey on Monad testnet (create an account, receive the MON drip, claim test AUSD, pay an invoice,
-confirm the transfer on the explorer).
+flows, since none of it takes custody of funds the way the contract would. What backs it: 46 committed Vitest
+tests of the pure logic (the derived address is deterministic, matches viem's independent derivation and
+standard BIP-39 vectors, and signs; the Send checks; the invoice ids); `curl` checks of the funding route's
+validation and no-key paths and a local fake RPC that drops replies to test the transport (both run during
+development, not committed); type-check and lint, which are clean; and my own end-to-end runs with a real
+passkey on Monad testnet (create an account, receive the MON drip, claim test AUSD, pay an invoice, confirm the
+transfer on the explorer). I checked that the tests can fail by deliberately breaking the code under test.
 
 **Defects found by running it, then fixed:** the success screen vanishing when a status poll saw "Paid" mid-
 payment; a settle timer that counted the payer's approval time; a dashboard that did not show a newly created
