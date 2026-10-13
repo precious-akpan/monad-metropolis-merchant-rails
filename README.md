@@ -180,7 +180,7 @@ and can run dry or be drained by a script. A real on-ramp for payers who hold no
 request (`cancelInvoice`), but the app has no cancel button yet. The
 public RPC is slow and spiky, so a first load can take several seconds.
 
-**What is and is not automated.** The contract has 26 Foundry tests. The app has 46 Vitest tests of its pure logic
+**What is and is not automated.** The contract has 26 Foundry tests. The app has 51 Vitest tests of its pure logic
 (no browser, no network). The screens, the payment sequence and the passkey prompts have no automated tests: they
 need a real authenticator and a live chain, so they were exercised by hand.
 
@@ -200,7 +200,7 @@ pnpm dev            # http://localhost:3000
 
 Passkey accounts made on `localhost` are separate from production ones. The gas top-up route needs a funded,
 testnet-only key in `frontend/.env.local` (`SPONSOR_PRIVATE_KEY=0x...`); without it the app shows the address to
-fund by hand. Tests: `pnpm test` (46 tests of the app's pure logic: account derivation and recovery phrase, Send checks,
+fund by hand. Tests: `pnpm test` (51 tests of the app's pure logic: account derivation and recovery phrase, Send checks,
 invoice ids, amounts) and `cd contracts && forge build && forge test` (26 contract tests).
 
 ## AI tool disclosure
@@ -220,7 +220,7 @@ Specifically:
 
 **What I did and did not review by hand.** I reviewed the contract line by line. I did not review the
 frontend that way: my review there was at the level of running it, type-checking, and exercising the real
-flows, since none of it takes custody of funds the way the contract would. What backs it: 46 committed Vitest
+flows, since none of it takes custody of funds the way the contract would. What backs it: 51 committed Vitest
 tests of the pure logic (the derived address is deterministic, matches viem's independent derivation and
 standard BIP-39 vectors, and signs; the Send checks; the invoice ids); `curl` checks of the funding route's
 validation and no-key paths and a local fake RPC that drops replies to test the transport (both run during
