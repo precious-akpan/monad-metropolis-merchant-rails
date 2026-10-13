@@ -10,6 +10,9 @@ Cross-Border Payments and Mera-Powered UX bounties.
 | | |
 |---|---|
 | **Live app** | https://merchant-rails.vercel.app/ (Monad testnet; installable on a phone) |
+| **Demo video** | https://www.youtube.com/watch?v=Bb_Qo0eb5Eg (2:27: passkey account, AUSD, payment, merchant paid) |
+| **Agora take** | https://www.youtube.com/watch?v=4-wg1tlnDRY (1:55: passkey onboarding, AUSD balance, settled payment) |
+| **Pitch video** | https://www.youtube.com/watch?v=zprmfi8RiUE (1:55) |
 | **Source** | https://github.com/precious-akpan/monad-metropolis-merchant-rails (MIT) |
 | **Settlement** | Measured **0.3 to 0.9 s** from broadcast to confirmed receipt on Monad testnet |
 | **Contract** | `MerchantRails` at `0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6` ([explorer](https://testnet.monadvision.com/address/0x9f3fC6897a1EEA8E5FfCcfAB696C6795a1C8dfc6)) |
