@@ -13,7 +13,7 @@ import { NetworkGuard } from "@/components/NetworkGuard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { monadTestnet } from "@/lib/chain";
 import { MIN_GAS_BALANCE } from "@/lib/gas";
-import { describeTxError } from "@/lib/txError";
+import { describeTxError, isFaucetBusy } from "@/lib/txError";
 import {
   MERCHANT_RAILS_ADDRESS,
   ausdFaucetContract,
@@ -31,6 +31,8 @@ type Step = "idle" | "approving" | "paying" | "done";
 
 // How long a pay transaction may have a hash and no receipt before we say so and offer a way to check.
 const SLOW_CONFIRM_MS = 20_000;
+const FAUCET_RETRY_MS = 4_000;
+const FAUCET_RETRY_WINDOW_MS = 60_000;
 type Settlement = { txHash: `0x${string}`; elapsedMs: number | null };
 
 export function PayClient({ id }: { id: `0x${string}` }) {
@@ -180,6 +182,24 @@ function PaymentFlow({
   // Testnet only: AUSD comes from Agora's faucet; the older test token has an open mint.
   const claim = useWriteContract();
   const claimReceipt = useWaitForTransactionReceipt({ hash: claim.data });
+
+  // Agora's faucet is shared by every user and refuses a claim made too soon after anyone else's, so
+  // a busy answer is retried quietly for a minute before the payer is asked to press the button again.
+  const claimDeadline = useRef(0);
+  const [claimGaveUp, setClaimGaveUp] = useState(false);
+  const faucetBusy = isFaucetBusy(claim.error);
+  const claimRetrying = faucetBusy && !claimGaveUp;
+  const sendClaim = () =>
+    claim.writeContract({ ...ausdFaucetContract, functionName: "requestFunds", args: [payer] });
+  useEffect(() => {
+    if (!faucetBusy || claimGaveUp) return;
+    const timer = setTimeout(() => {
+      if (Date.now() < claimDeadline.current) sendClaim();
+      else setClaimGaveUp(true);
+    }, FAUCET_RETRY_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claim.error, claimGaveUp]);
   useEffect(() => {
     if (claimReceipt.data) refetchBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -284,11 +304,9 @@ function PaymentFlow({
         <button
           onClick={() => {
             if (isAusd(token)) {
-              claim.writeContract({
-                ...ausdFaucetContract,
-                functionName: "requestFunds",
-                args: [payer],
-              });
+              claimDeadline.current = Date.now() + FAUCET_RETRY_WINDOW_MS;
+              setClaimGaveUp(false);
+              sendClaim();
             } else {
               claim.writeContract({
                 ...mockUsdContract,
@@ -297,10 +315,10 @@ function PaymentFlow({
               });
             }
           }}
-          disabled={claim.isPending || claimReceipt.isLoading || lowGas}
+          disabled={claim.isPending || claimReceipt.isLoading || claimRetrying || lowGas}
           className="rounded-xl border border-neutral-300 px-5 py-3 font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:opacity-50"
         >
-          {claim.isPending || claimReceipt.isLoading
+          {claim.isPending || claimReceipt.isLoading || claimRetrying
             ? `Getting test ${tokenLabel(token)}…`
             : `Get test ${tokenLabel(token)} (testnet only)`}
         </button>
@@ -340,10 +358,15 @@ function PaymentFlow({
           </div>
         </div>
       ) : null}
-      {(approve.error || pay.error || claim.error || approveReceipt.error || payReceipt.error || claimReceipt.error) ? (
+      {claimRetrying ? (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          The test-money faucet is busy: it serves one request at a time for everyone. Retrying…
+        </p>
+      ) : null}
+      {(approve.error || pay.error || (claim.error && !claimRetrying) || approveReceipt.error || payReceipt.error || claimReceipt.error) ? (
         <p className="text-sm text-red-600">
           {describeTxError(
-            approve.error ?? pay.error ?? claim.error ?? approveReceipt.error ?? payReceipt.error ?? claimReceipt.error,
+            approve.error ?? pay.error ?? (claimRetrying ? null : claim.error) ?? approveReceipt.error ?? payReceipt.error ?? claimReceipt.error,
           )}
         </p>
       ) : null}
